@@ -21,6 +21,7 @@ case $Menu1 in
             InstallMenu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose a program you would like to install." $LINES $COLUMNS $(( $LINES - 8 )) \
 		   "FFmpeg" "A multimedia library" \
 		   "I2S" "Library for mic" \
+		   "Fritzing" "A tools for drwaing circuits" \
 		   "Code::Blocks" "A C/C++/Fortan IDE for Raspberry Pi" 3>&1 1>&2 2>&3)
 			
 		case $InstallMenu1 in
@@ -30,6 +31,10 @@ case $Menu1 in
 			;;
 			I2S)
 				InstallI2S
+			;;
+			Fritzing)
+				sudo apt install fritzing fritzing-data fritzing-parts -y
+				MainMenu
 			;;
 			Code::Blocks)
 				sudo apt install codeblocks -y
