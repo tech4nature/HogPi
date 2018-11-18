@@ -10,13 +10,13 @@ function WelcomeScreen() {
 
 function MainMenu() {
 
-Menu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose an option" $(stty size) $(tput lines) - 8 \
+Menu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose an option" $(stty size) $(( $(tput lines) - 8)) \
         "Install" "Install a Package" \
         "Update" "Update your system" \
         "Exit" "Exit the installer" 3>&1 1>&2 2>&3)
 case $Menu1 in
         Install)
-            InstallMenu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose a program you would like to install." $(stty size) $(tput lines) - 8 \
+            InstallMenu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose a program you would like to install." $(stty size) $(( $(tput lines) - 8))  \
 		   "FFmpeg" "A multimedia library" \
 		   "I2S" "Library for mic" \
 		   "Fritzing" "A tools for drwaing circuits" \
