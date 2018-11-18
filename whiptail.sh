@@ -6,6 +6,7 @@
 function WelcomeScreen() {
 
 	whiptail --title "Welcome to HogPi" --fb --msgbox "This is the installer for HogPi" $(stty size)
+}
 
 function MainMenu() {
 
@@ -53,5 +54,3 @@ case $Menu1 in
 esac
 
 }
-
-
