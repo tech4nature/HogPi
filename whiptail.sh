@@ -3,21 +3,19 @@
 . FFMpeg.sh
 . i2s.sh
 
-eval `resize`
 function WelcomeScreen() {
 
-	whiptail --title "Welcome to HogPi" --fb --msgbox "This is the installer for HogPi" 8 78
-}
+	whiptail --title "Welcome to HogPi" --fb --msgbox "This is the installer for HogPi" $(stty size)
 
 function MainMenu() {
 
-Menu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose an option" 25 78 16 \
+Menu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose an option" $(stty size) $(tput lines) - 8 \
         "Install" "Install a Package" \
         "Update" "Update your system" \
         "Exit" "Exit the installer" 3>&1 1>&2 2>&3)
 case $Menu1 in
         Install)
-            InstallMenu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose a program you would like to install." 25 78 16 \
+            InstallMenu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose a program you would like to install." $(stty size) $(tput lines) - 8 \
 		   "FFmpeg" "A multimedia library" \
 		   "I2S" "Library for mic" \
 		   "Fritzing" "A tools for drwaing circuits" \
@@ -46,11 +44,11 @@ case $Menu1 in
 			sudo apt upgrade -y
 			sudo apt clean -y
 			sudo apt autoremove -y
-            whiptail --title "HogPi Installer" --msgbox "Your machine has been updated to the latest version" 8 78
+            whiptail --title "HogPi Installer" --msgbox "Your machine has been updated to the latest version" $(stty size)
 			MainMenu
         ;;
         Exit)
-            whiptail --title "HogPi Installer" --msgbox "Goodbye. Thank you for using HogPi" 8 78
+            whiptail --title "HogPi Installer" --msgbox "Goodbye. Thank you for using HogPi" $(stty size)
         ;;
 esac
 
