@@ -1,4 +1,4 @@
-# HopPiInstaller
+# HogPiInstaller
 The bash installer for HogPi
 
 v0.0.1
