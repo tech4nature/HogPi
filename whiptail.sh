@@ -45,11 +45,11 @@ case $Menu1 in
 			sudo apt upgrade -y
 			sudo apt clean -y
 			sudo apt autoremove -y
-            whiptail --title "HogPi Installer" --msgbox "Your machine has been updated to the latest version" $(stty size)
+            whiptail --title "HogPi Installer" --fb --msgbox "Your machine has been updated to the latest version" $(stty size)
 			MainMenu
         ;;
         Exit)
-            whiptail --title "HogPi Installer" --msgbox "Goodbye. Thank you for using HogPi" $(stty size)
+            whiptail --title "HogPi Installer" --fb --msgbox "Goodbye. Thank you for using HogPi" $(stty size)
         ;;
 esac
 

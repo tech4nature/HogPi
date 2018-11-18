@@ -8,6 +8,7 @@ function InstallFFmpeg(){
 	sudo apt-get install autoconf automake build-essential libass-dev libfreetype6-dev libmp3lame-dev libomxil-bellagio-dev libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo zlib1g-dev -y
 	
 	echo "Clone git repo"
+	cd ~
 	
 	git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg
 	cd ffmpeg
@@ -53,5 +54,6 @@ function InstallFFmpeg(){
 	make -j4
 	make install
 	sudo cp ./ffmpeg ./ffprobe /usr/bin/
+	sudo rm -rf ~/ffmpeg
 	
 }
