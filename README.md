@@ -13,9 +13,8 @@ Uses Whiptail library
 
 How to install :
 
-```ruby
-require 'redcarpet'
-markdown = Redcarpet.new("Hello World!")
-puts markdown.to_html
+```sh
+git clone https://github.com/jw2476/HogPiInstaller
+cd HogPiInstaller
+sudo bash installer.sh
 ```
-
