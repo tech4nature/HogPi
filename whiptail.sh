@@ -2,6 +2,7 @@
 
 . FFMpeg.sh
 . i2s.sh
+. i2s_2.sh
 
 function WelcomeScreen() {
 
@@ -19,6 +20,7 @@ case $Menu1 in
             InstallMenu1=$(whiptail --title "HogPi Installer" --fb --menu "Choose a program you would like to install." $(stty size) $(( $(tput lines) - 8))  \
 		   "FFmpeg" "A multimedia library" \
 		   "I2S" "Library for mic" \
+		   "I2S_Part2" "Library for mic, part 2" \
 		   "Fritzing" "A tools for drwaing circuits" \
 		   "Code::Blocks" "A C/C++/Fortan IDE for Raspberry Pi" 3>&1 1>&2 2>&3)
 			
@@ -29,6 +31,9 @@ case $Menu1 in
 			;;
 			I2S)
 				InstallI2S
+			;;
+			I2S_Part2)
+				InstallI2S_Part2
 			;;
 			Fritzing)
 				sudo apt install fritzing fritzing-data fritzing-parts -y
