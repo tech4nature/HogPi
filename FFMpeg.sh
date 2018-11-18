@@ -52,6 +52,6 @@ function InstallFFmpeg(){
 	./configure --prefix=/home/pi/ffmpeg/dependencies/output --enable-gpl --enable-libmp3lame --enable-libx264 --enable-nonfree --enable-mmal --enable-libfdk_aac --enable-omx --enable-omx-rpi --extra-cflags="-I/home/pi/ffmpeg/dependencies/output/include" --extra-ldflags="-L/home/pi/ffmpeg/dependencies/output/lib" --extra-libs="-lx264 -lpthread -lm -ldl"
 	make -j4
 	make install
-	sudo cp ./ffmpeg ./ffmprobe /usr/bin/
+	sudo cp ./ffmpeg ./ffprobe /usr/bin/
 	
 }
