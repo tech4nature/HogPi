@@ -1,17 +1,8 @@
 # HogPiInstaller
 The bash installer for HogPi
 
-v0.0.1
 
-Installs FFMpeg/Code::Blocks
-
-Updates Pi
-
-Uses Whiptail library
-
-
-
-How to install :
+## How to install :
 
 ```sh
 git clone https://github.com/jw2476/HogPiInstaller
@@ -19,3 +10,16 @@ cd HogPiInstaller
 sudo cp *.sh /usr/bin
 sudo bash installer.sh
 ```
+## v0.0.2
+
+* Installs FFMpeg,Code::Blocks,I2S* and Fritzing
+* Fixed scaling for Pi
+* \* Needs to be installed in 2 or more parts.
+
+## v0.0.1
+
+* Installs FFMpeg/Code::Blocks
+* Updates Pi
+* Uses Whiptail library
+
+
