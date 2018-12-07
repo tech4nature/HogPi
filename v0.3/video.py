@@ -3,7 +3,7 @@ from datetime import datetime
 from time import strftime
 import os
 
-class ffmpeg(of):
+class ffmpeg:
     def record(self, filename, rectime, debug):
         # ffmpeg 1st Pass record
         global of1
