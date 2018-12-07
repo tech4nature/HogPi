@@ -4,6 +4,8 @@ from time import strftime
 import os
 
 class ffmpeg:
+    def __init__(self):
+        of = os.path.dirname(os.path.realpath(__file__))
     def record(self, filename, rectime, debug):
         # ffmpeg 1st Pass record
         global of1
