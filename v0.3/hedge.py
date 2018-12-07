@@ -5,6 +5,7 @@ import weight
 
 camera = video.ffmpeg
 
+camera.__init__()
 camera.record("1stPASS.mp4", 10, True)
 camera.extract_time(True)
 camera.sync_av("2ndPASS.mp4", True)
