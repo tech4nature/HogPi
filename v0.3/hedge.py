@@ -3,7 +3,7 @@ import thermo
 import video
 import weight
 
-camera = video.ffmpeg
+camera = video.ffmpeg()
 
 camera.__init__()
 camera.record("1stPASS.mp4", 10, True)
