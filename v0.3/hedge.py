@@ -3,7 +3,7 @@ import thermo
 import video
 import weight
 
-camera = video.ffmpeg("/home/Documents/")
+camera = video.ffmpeg
 
 camera.record("1stPASS.mp4", 10, True)
 camera.extract_time(True)
