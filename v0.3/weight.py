@@ -26,7 +26,6 @@ class sensor:
         val = hx.get_weight(5)
         t = sensor.get_time(False)
         tup_weight = (t, val)
-        print(tup_weight)
         hx.power_down()
         hx.power_up()
         if debug == True:
