@@ -1,5 +1,8 @@
 #!/bin/bash
 
+tar=/bin/tar
+wget=/usr/bin/wget
+
 function InstallFFmpeg(){
 	echo "Install Dependencies"
 
@@ -27,9 +30,9 @@ function InstallFFmpeg(){
 
 	echo "Compile ALSA"
 
-	wget ftp://ftp.alsa-project.org/pub/lib/alsa-lib-1.1.1.tar.bz2
-	tar xjf alsa-lib-1.1.1.tar.bz2
-	cd alsa-lib-1.1.1/
+	wget ftp://ftp.alsa-project.org/pub/lib/alsa-lib-1.1.7.tar.bz2
+	tar xjf alsa-lib-1.1.7.tar.bz2
+	cd alsa-lib-1.1.7/
 	./configure --prefix=/home/pi/ffmpeg/dependencies/output
 	make -j4
 	make install

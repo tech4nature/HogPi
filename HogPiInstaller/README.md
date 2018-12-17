@@ -8,7 +8,7 @@ The bash installer for HogPi
 git clone https://github.com/jw2476/HogPiInstaller
 cd HogPiInstaller
 sudo cp *.sh /usr/bin
-sudo bash installer.sh
+bash installer.sh # Do not install as superuser
 ```
 ## v0.0.2
 
