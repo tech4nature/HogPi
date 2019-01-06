@@ -1,3 +1,3 @@
 # HogPi
 
-HogPi code repository.
+HogPi code repository by Tech4Nature.
