@@ -1,4 +1,5 @@
 from csv import writer, reader
+import json
 
 class Output:
     @staticmethod
@@ -17,3 +18,6 @@ class Output:
             for row in data_reader:
                 data.append(row[column])
             return data
+
+    @staticmethod
+    def write_json(name, owner, address1, address2, postcode, status, type, emailadd, maint, phone, occupants, setupdate, field1, field2, x, y):
