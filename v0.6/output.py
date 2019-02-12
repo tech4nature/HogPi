@@ -43,18 +43,22 @@ class Output:
         return a
 
     @staticmethod
-    def format_data(filename, hog_id, box_id, type):
-        with open('/home/pi/' + filename, 'r') as f:
-            data_reader = reader(f, delimiter=',')
-            times = []
-            data = []
-            for row in data_reader:
-                times.append(row[0])
-                data.append(row[1])
+    def format_data(filenames, hog_id, box_id, type):
+        a = []
+        for filename in filenames:
+            with open('/home/pi/' + filename, 'r') as f:
+                data_reader = reader(f, delimiter=',')
+                times = []
+                data = []
+                for row in data_reader:
+                    times.append(row[0])
+                    data.append(row[1])
+                a.append(data[0])
         a = {
             "hog_id": hog_id,
             "box_id": box_id,
-            type: data[0],
+            str(filename[0].split('.csv')[0]): data[0],
+            str(filename[1].split('.csv')[0]): data[1],
             "time_stamp": times[0]
         }
         return a
