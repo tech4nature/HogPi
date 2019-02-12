@@ -12,7 +12,7 @@ class Output:
 
     @staticmethod
     def read(filename, column, debug):
-        with open('/home/pi/' + filename, 'r') as f:
+        with open('homepi' + filename, 'r') as f:
             data_reader = reader(f, delimiter=',')
             data = []
             for row in data_reader:
@@ -20,4 +20,23 @@ class Output:
             return data
 
     @staticmethod
-    def write_json(name, owner, address1, address2, postcode, status, type, emailadd, maint, phone, occupants, setupdate, field1, field2, x, y):
+    def write_json(name, owner, address1, address2, postcode, status, email, maint, phone, occupants, setupdate, field1, field2, x, y):
+        a = {"name": name,
+                "owner": owner,
+                "address1": address1,
+                "address2": address2,
+                "postcode": postcode,
+                "status": status,
+                "type": 'res',
+                "emailadd": email,
+                "maint": maint,
+                "phone": phone,
+                "occupants": occupants,
+                "setupdate": setupdate,
+                "field1": field1,
+                "field2": field2,
+                "circle": {
+	                "coordinates": [x, y]
+                    }
+                }
+        return json.dumps(a)

@@ -7,6 +7,7 @@ import os
 
 fileRW = Output()
 
+
 class sensor:
     def __init__(self):
         # Sets up scales
@@ -25,28 +26,30 @@ class sensor:
         if check == False:
             open("/home/pi/tare_weight.csv", 'x')  # if not creates file
 
-    def tare_weight(self, decimal_of_max):
+    def tare_weight(self, decimal_of_max, debug=False):
         # checks if weight.csv exists and is non-empty
         if os.path.isfile('/home/pi/weight.csv') and os.path.getsize('/home/pi/weight.csv') > 0:
-            with open('/home/pi/weight.csv', 'r') as r_csvfile:
-                data_reader = reader(r_csvfile, delimiter=',')
-                data = []
-                for row in data_reader:
-                    data.append(row[1])
-                a = numpy.array(data).astype(numpy.float)
+            # with open('/home/pi/weight.csv', 'r') as r_csvfile:
+            #     data_reader = reader(r_csvfile, delimiter=',')
+            #     data = []
+            #     for row in data_reader:
+            #         data.append(row[1])
+            data = fileRW.read('/home/pi/weight.csv', 1)
+            a = numpy.array(data).astype(numpy.float)
         print("this is last value to use as a[-1]", a[-1])
         # test if the last value is below 90% retare weight
         if a[-1] > decimal_of_max*numpy.amax(a) and a[-1] > 100:
             # set flag to allow no tare
             self.No_Tare = True
-            print("Set this if you do not want a tare")
+            if debug == True:
+                print("Set this if you do not want a tare")
         else:
             # set flag to allow tare
             self.No_Tare = False
-            print("Set this if you  WANT a tare")
+            # Set this if you WANT a tare
         return
 
-    def get_time(self, debug):
+    def get_time(self, debug=False):
         d = datetime.now()
         x = d.strftime("%Y %m %d %H %M %S")
         if debug is True:
@@ -54,7 +57,7 @@ class sensor:
             print("Refined time: ", x)
         return x
 
-    def read(self, debug):
+    def read(self, debug=False):
         # Gets data off of weight scales
         if self.No_Tare is False:
             # tare weight unless set to true
@@ -76,15 +79,16 @@ class sensor:
         sleep(0.5)
         return tup_weight
 
-    def write(self, filename, debug):
-        while i <= 10:
+    def write(self, filename, time=60, debug=False):
+        i = 0
+        while i <= time:
             data = self.read(debug)
             if debug == True:
                 print("Data to write: ", data)
-            fileRW.write("/home/pi/" + filename)
+            fileRW.write("/home/pi/" + filename, data)
             i += 1
 
-    def avrg(self, readfile, writefile, percentage_of_max, debug):
+    def avrg(self, readfile, writefile, percentage_of_max, debug=False):
         # declarations
         sum_count = 0  # declare before sum_count
         valid_number = 0  # decalare before use to avoid negative division
@@ -124,7 +128,7 @@ class sensor:
             valid_number = 1
         # calculate averages
         sp_average = sum_count/valid_number  # gives average weight of hedgehog
-        tup_weight_refined = (start, sp_average)
+        tup_weight_refined = (start, int(sp_average))
         fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
         if debug == True:
             print(sum_count)
