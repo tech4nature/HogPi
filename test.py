@@ -1,19 +1,15 @@
-import requests
-from datetime import datetime
+import click
 
-weightDict = {
-    "hog_id": 23435445,  # not sure about format yet
-    "box_id": 2343432,
-    "weight": 23,
-    "time_stamp": "2019 12 31 23 59 59",
-}
 
-tempDict = {
-    "hog_id": 23435445,  # not sure about format yet
-    "box_id": 2343432,
-    "temp": 23,
-    "time_stamp": "2019 12 31 23 59 59",
-}
+@click.command()
+@click.option('--count', default=1, help='Number of greetings.')
+@click.option('--name', prompt='Your name',
+              help='The person to greet.')
+def hello(count, name):
+    """Simple program that greets NAME for a total of COUNT times."""
+    for x in range(count):
+        click.echo('Hello %s!' % name)
 
-r = requests.post('http://10.172.100.26:8192/api/weight/', json=weightDict)
-r = requests.post('http://10.172.100.26:8192/api/temp/', json=tempDict)
+
+if __name__ == '__main__':
+    hello()
