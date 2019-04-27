@@ -2,18 +2,28 @@ import serial
 from time import sleep
 
 
-class rfid_sensor:
+class sensor:
     def __init__(self):
+        global ser
         ser = serial.Serial(
             port='/dev/ttyAMA0',
             baudrate=9600,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
             bytesize=serial.EIGHTBITS,
+            timeout=0,
         )
-
         ser.write(b'SD2\r\n')
-        ser.read(3)
 
     def read(self):
-        return ser.read(17).decode('utf-8').split('''\r''')[0]
+        ser.write(b'rat\r\n')
+        a = ser.read(34).decode('utf-8')
+        if '?1' in a:
+            return 'Tag not present'
+            # ser.read(3)
+        else:
+            a = str(a)  # change to a proper string
+            a = a[0:16]  # just send unique data part withou error code
+            ser.reset_input_buffer()
+            ser.reset_output_buffer()
+            return a

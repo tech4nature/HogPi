@@ -9,12 +9,14 @@ from datetime import datetime
 import glob
 import os
 import led
+import rfid
 
 fileRW = output.Output()
 web = post.http()
 battery = power.Power()
 thermo_sensor = thermo.sensor()
 weight_sensor = weight.sensor()
+rfid_sensor = rfid.rfid_sensor()
 
 
 while True:
@@ -31,16 +33,17 @@ while True:
 
     elif time % 600 == 0:
         weight_sensor.tare_weight(0.6)
-
+        # PIR Sensor Stuff here
+        hog_id = rfid_sensor.read()
         weight_sensor.write('weight.csv', debug=True, time=60)  # Read Weight
         thermo_sensor.write(debug=True, time=60)  # Read Temperature
 
         weight_sensor.avrg('weight.csv', 'avrgweight.csv', 0.95, True)  # Average Weight
         thermo_sensor.avrg('temp_in.csv', 'avrgtemp_in.csv', True)  # Average Temperature
         thermo_sensor.avrg('temp_out.csv', 'avrgtemp_out.csv', True)  # Average Temperature
-        weightJSON = fileRW.format_data_weight('avrgweight.csv', 23435445, 2343432,
+        weightJSON = fileRW.format_data_weight('avrgweight.csv', hog_id, 2343432,
                                                'weight')  # Format Weight as JSON
-        tempJSON = fileRW.format_data_temp(['avrgtemp_in.csv', 'avrgtemp_out.csv'], 23435445, 2343432,
+        tempJSON = fileRW.format_data_temp(['avrgtemp_in.csv', 'avrgtemp_out.csv'], hog_id, 2343432,
                                            'temp')  # Format Temperature as JSON
         print(weightJSON, tempJSON)
         web.post("http://10.172.100.26:8192/api/weight/", weightJSON)

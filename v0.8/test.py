@@ -6,10 +6,11 @@ import weight
 import power
 import output
 import video_ftp
+import pir
 
 
 def main_menu():
-    x = input("w = weight \nt = temp \np = post \nv = video \nf = ftp \n")
+    x = input("w = weight \nt = temp \np = post \nv = video \nf = ftp \nr = ftp \n")
 
     if x == "t":
         temperature = thermo.sensor()
@@ -19,8 +20,9 @@ def main_menu():
         main_menu()
 
     elif x == "v":
-        test = subprocess.Popen(['python3', 'video.py'])
+        test = subprocess.Popen(['python3', '/home/pi/v0.8/video.py'])
         test.wait()
+        test.terminate()
         main_menu()
 
     elif x == "w":
