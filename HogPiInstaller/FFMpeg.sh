@@ -3,7 +3,7 @@
 tar=/bin/tar
 wget=/usr/bin/wget
 
-function InstallFFmpeg(){
+function InstallFFmpeg {
 	echo "Install Dependencies"
 
 	sudo apt-get update
