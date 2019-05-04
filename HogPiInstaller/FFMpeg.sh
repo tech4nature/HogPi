@@ -57,6 +57,6 @@ function InstallFFmpeg {
 	make -j4
 	make install
 	sudo cp ./ffmpeg ./ffprobe /usr/bin/
-	sudo rm -rf ~/ffmpeg
+	sudo rm -rf ~/ffmpegu
 
 }
