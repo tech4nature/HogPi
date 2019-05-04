@@ -109,7 +109,7 @@ while True:
         #  ********** Record video & post ************
         # Record video
         try:
-            test = subprocess.Popen(['python3', '/home/pi/v0.8/video.py'])
+            test = subprocess.Popen(['python3', 'video.py'])
             test.wait()
             test.terminate()
         except Exception as e:
