@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 from csv import writer, reader
 from time import sleep, strftime
+from output import Output
 import numpy
 import os
 import glob
 
+fileRW = Output()
 
 class sensor:
     def __init__(self):
@@ -55,25 +57,17 @@ class sensor:
             return tup_temp
 
     def write(self, filename, debug):
-        with open('/home/pi/' + filename, 'w+', newline='') as f:
-            data_writer = writer(f)
-            i = 0
-            while i <= 60:
-                data = sensor.read(self, debug)
-                if debug == True:
-                    print("Data to write: ", data)
-                data_writer.writerow(data)
-                i += 1
+        while i <= 10:
+            data = self.read(debug)
+            if debug == True:
+                print("Data to write: ", data)
+            fileRW.write("/home/pi/" + filename)
+            i += 1
 
     def avrg(self, readfile, writefile, debug):
-        with open('/home/pi/' + readfile, 'r') as f:
-            data_reader = reader(f, delimiter=',')
-            times = []
-            data = []
+            data = fileRW.read("/home/pi/" + readfile, 1, debug)
             first = next(data_reader)
             start = first[0]  # 1st time in array
-            for row in data_reader:
-                data.append(row[1])
             data_float = numpy.array(data).astype(numpy.float)
             numpy_average = numpy.average(data_float)  # Complete avarage
             numpy_max = numpy.amax(data_float)  # max value of array

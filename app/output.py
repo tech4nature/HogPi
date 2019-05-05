@@ -1,6 +1,7 @@
 from csv import writer, reader
 import json
 
+
 class Output:
     @staticmethod
     def write(filename, data, debug):
@@ -22,21 +23,22 @@ class Output:
     @staticmethod
     def write_json(name, owner, address1, address2, postcode, status, email, maint, phone, occupants, setupdate, field1, field2, x, y):
         a = {"name": name,
-                "owner": owner,
-                "address1": address1,
-                "address2": address2,
-                "postcode": postcode,
-                "status": status,
-                "type": 'res',
-                "emailadd": email,
-                "maint": maint,
-                "phone": phone,
-                "occupants": occupants,
-                "setupdate": setupdate,
-                "field1": field1,
-                "field2": field2,
-                "circle": {
-	                "coordinates": [x, y]
-                    }
-                }
-        return json.dumps(a)
+             "owner": owner,
+             "address1": address1,
+             "address2": address2,
+             "postcode": postcode,
+             "status": status,
+             "type": 'res',
+             "emailadd": email,
+             "maint": maint,
+             "phone": phone,
+             "occupants": occupants,
+             "setupdate": setupdate,
+             "field1": field1,
+             "field2": field2,
+             "circle": {
+                 "coordinates": [x, y]
+             }
+             }
+        print(a)
+        return a

@@ -6,6 +6,7 @@ import weight
 import power
 import output
 
+
 def main_menu():
     x = input("w = weight \nt = temp \np = post \nv = video \n")
 
@@ -32,7 +33,8 @@ def main_menu():
     elif x == "p":
         web = post.http()
         out = output.Output()
-        json_file = out.write_json('The Hedgehog Box of Doom', 'Jack Whitehorn', '65 Horns Road', 'Stroud, Gloucstershire', 'Gl5 1EB', 'OK', 'gaberielbkyne@gmail.com', 'Jack Whitehorn', '01453766796', 1, '2019-01-19T00:00:00.000Z', '0', '0', 51.7429235, -2.2057314)
+        json_file = out.write_json('The Hedgehog Box of Doom', 'Jack Whitehorn', '65 Horns Road', 'Stroud, Gloucstershire', 'Gl5 1EB', 'OK',
+                                   'gaberielbkyne@gmail.com', 'Jack Whitehorn', '01453766796', 1, '2019-01-19T00:00:00.000Z', '0', '0', 51.7429235, -2.2057314)
         web.post("https://hedgehog.bitnamiapp.com/api/boxes", json_file, True)
         main_menu()
 
