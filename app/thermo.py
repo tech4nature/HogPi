@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 from csv import writer, reader
 from time import sleep, strftime
+import numpy
+import os
+import glob
 
 
 class sensor:
@@ -35,7 +38,7 @@ class sensor:
     def read(self, debug):
         # Refines the raw data to something readable
         lines = sensor.read_temp_raw(self)
-        t = sensor.get_time(False)
+        t = sensor.get_time(self, False)
         while lines[0].strip()[-3:] != 'YES':
             time.sleep(0.2)
             lines = read_temp_raw()
@@ -52,24 +55,32 @@ class sensor:
             return tup_temp
 
     def write(self, filename, debug):
-        with open(os.path.dirname(os.path.realpath(__file__)) + filename, 'w+', newline='') as f:
-            data = sensor.read(False)
-            if debug == True:
-                print("Data to write: ", data)
-            data_writer.writerow(data)
+        with open('/home/pi/' + filename, 'w+', newline='') as f:
+            data_writer = writer(f)
+            i = 0
+            while i <= 60:
+                data = sensor.read(self, debug)
+                if debug == True:
+                    print("Data to write: ", data)
+                data_writer.writerow(data)
+                i += 1
 
     def avrg(self, readfile, writefile, debug):
-        with open(os.path.dirname(os.path.realpath(__file__)) + readfile, 'r') as f:
-            data = [row[1] for row in reader(f, delimiter=';')]
-            times = [row[0] for row in reader(f, delimiter=';')]
-            data_float = np.array(data).astype(np.float)
-            np_average = np.average(data_float)  # Complete avarage
-            np_max = np.amax(data_float)  # max value of array
-            starttime = datetime.strptime(times[0], '%Y %m %d %H %M %S')  # 1st item in list times
-            tup_temp_refined = (starttime, np_average)
+        with open('/home/pi/' + readfile, 'r') as f:
+            data_reader = reader(f, delimiter=',')
+            times = []
+            data = []
+            first = next(data_reader)
+            start = first[0]  # 1st time in array
+            for row in data_reader:
+                data.append(row[1])
+            data_float = numpy.array(data).astype(numpy.float)
+            numpy_average = numpy.average(data_float)  # Complete avarage
+            numpy_max = numpy.amax(data_float)  # max value of array
+            avrgtemp = round(numpy_average, 2)
+            tup_temp_refined = (start, avrgtemp)
             if debug == True:
-                print("Average temperature is: ", np_average)
-                print("Max temperature is: ", np_max)
-                print("Start time is: ", starttime)
+                print("Average temperature is: ", avrgtemp)
+                print("Max temperature is: ", numpy_max)
                 print("Conbined data: ", tup_temp_refined)
             return tup_temp_refined  # posted to http server
