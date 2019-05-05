@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     of = '/home/pi/Videos/'  # output folder
     of1 = of + '1stPASS.mp4'
-    rectime = '30'  # record time of 60s
+    rectime = '10'  # record time of 60s
 
     # ffmpeg 1st Pass record
     irled.on()  # Turn led on

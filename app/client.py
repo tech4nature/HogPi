@@ -5,7 +5,7 @@ from requests.auth import HTTPBasicAuth
 
 
 HOGHOST = "http://connectionengine.co.uk"
-AUTH = None
+AUTH = HTTPBasicAuth('tech4nature', 'hoggy')
 
 
 def create_location(code, name):
