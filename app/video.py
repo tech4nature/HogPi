@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     of = '/home/pi/Videos/'  # output folder
     of1 = of + '1stPASS.mp4'
-    rectime = '10'  # record time of 60s
+    rectime = '30'  # record time of 60s
 
     # ffmpeg 1st Pass record
     irled.on()  # Turn led on
@@ -48,7 +48,8 @@ if __name__ == "__main__":
     ffmpeg2.wait()
 
     # ffmpeg 3rd pass to add BITC and flip video !
-    of3 = of + filename + '.mp4'
+    # of3 = of + filename + '.mp4'  # time coded file for later use
+    of3 = of + 'hog_video.mp4'
     filter = 'vflip, drawtext=fontfile=/usr/share/fonts/truetype/freefont/FreeSans.ttf:fontsize=48:text=\'%{pts\:localtime\:' + \
         str(offset) + '\\:%Y %m %d %H %M %S}\': fontcolor=white@1: x=10: y=10'
     print(filter)

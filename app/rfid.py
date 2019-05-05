@@ -1,18 +1,29 @@
 import serial
 from time import sleep
 
-ser = serial.Serial(
 
-    port='/dev/ttyAMA0',
-    baudrate=9600,
-    parity=serial.PARITY_NONE,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS,
-)
-ser.write(bytes('SD2$0D', encoding='ascii'))  # Configure for FDX-B/HDX
-x = ser.readline()  # Check for errors
-print(x)
-sleep(5)  # 5 second delay
-ser.write(bytes('RAT$0D', encoding='ascii'))  # Tell RFID bpard to read chip
-x = ser.readline()  # Read output
-print(x)
+class sensor:
+    def __init__(self):
+        global ser
+        ser = serial.Serial(
+            port='/dev/ttyAMA0',
+            baudrate=9600,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            bytesize=serial.EIGHTBITS,
+            timeout=0,
+        )
+        ser.write(b'SD2\r\n')
+
+    def read(self):
+        ser.write(b'rat\r\n')
+        a = ser.read(34).decode('utf-8')
+        if '?1' in a:
+            return 'Tag not present'
+            # ser.read(3)
+        else:
+            a = str(a)  # change to a proper string
+            a = a[0:16]  # just send unique data part withou error code
+            ser.reset_input_buffer()
+            ser.reset_output_buffer()
+            return a

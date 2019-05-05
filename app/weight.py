@@ -79,7 +79,7 @@ class sensor:
         sleep(0.5)
         return tup_weight
 
-    def write(self, filename, time=60, debug=False):
+    def write(self, filename, time=10, debug=False):
         i = 0
         while i <= time:
             data = self.read(debug)
@@ -87,6 +87,8 @@ class sensor:
                 print("Data to write: ", data)
             fileRW.write("/home/pi/" + filename, data)
             i += 1
+            print('this is the iteration: ' + str(i))
+            print(time)
 
     def avrg(self, readfile, writefile, percentage_of_max, debug=False):
         # declarations
