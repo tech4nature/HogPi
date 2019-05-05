@@ -1,5 +1,6 @@
 from csv import writer, reader
 import json
+from ftplib import FTP
 
 
 class Output:
@@ -43,8 +44,25 @@ class Output:
         return a
 
     @staticmethod
-    def format_data(filenames, hog_id, box_id, type):
-        a = []
+    def format_data_weight(filename, hog_id, box_id, type):
+        with open('/home/pi/' + filename, 'r') as f:
+            data_reader = reader(f, delimiter=',')
+            times = []
+            data = []
+            for row in data_reader:
+                times.append(row[0])
+                data.append(row[1])
+        a = {
+            "hog_id": hog_id,
+            "box_id": box_id,
+            "weight": data[-1],
+            "time_stamp": times[0]
+        }
+        return a
+
+    @staticmethod
+    def format_data_temp(filenames, hog_id, box_id, type):
+        data_both = []
         for filename in filenames:
             with open('/home/pi/' + filename, 'r') as f:
                 data_reader = reader(f, delimiter=',')
@@ -53,12 +71,22 @@ class Output:
                 for row in data_reader:
                     times.append(row[0])
                     data.append(row[1])
-                a.append(data[0])
-        a = {
+                data_both.append(data[0])
+        b = {
             "hog_id": hog_id,
             "box_id": box_id,
-            str(filename[0].split('.csv')[0]): data[0],
-            str(filename[1].split('.csv')[0]): data[1],
+            str(filenames[0].split('.csv')[0]): data_both[0],
+            str(filenames[1].split('.csv')[0]): data_both[1],
             "time_stamp": times[0]
         }
-        return a
+        return b
+
+    @staticmethod
+    def ftp_video(filename, server, username, password):
+        ftp = FTP(server)
+        ftp.login(user=username, passwd=password)
+
+        filename = filename
+        fname = str(filename.split('/')[-1])
+        ftp.storbinary('STOR ' + '/' + fname, open(filename, 'rb'))
+        ftp.quit()

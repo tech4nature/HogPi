@@ -36,13 +36,13 @@ class sensor:
             #         data.append(row[1])
             data = fileRW.read('/home/pi/weight.csv', 1)
             a = numpy.array(data).astype(numpy.float)
-        print("this is last value to use as a[-1]", a[-1])
-        # test if the last value is below 90% retare weight
-        if a[-1] > decimal_of_max*numpy.amax(a) and a[-1] > 100:
-            # set flag to allow no tare
-            self.No_Tare = True
-            if debug == True:
-                print("Set this if you do not want a tare")
+            print("this is last value to use as a[-1]", a[-1])
+            # test if the last value is below 90% retare weight
+            if a[-1] > decimal_of_max*numpy.amax(a) and a[-1] > 100:
+                # set flag to allow no tare
+                self.No_Tare = True
+                if debug == True:
+                    print("Set this if you do not want a tare")
         else:
             # set flag to allow tare
             self.No_Tare = False
@@ -128,7 +128,7 @@ class sensor:
             valid_number = 1
         # calculate averages
         sp_average = sum_count/valid_number  # gives average weight of hedgehog
-        tup_weight_refined = (start, int(sp_average))
+        tup_weight_refined = (start, "%.2f" % sp_average)
         fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
         if debug == True:
             print(sum_count)

@@ -4,17 +4,18 @@ from time import strftime
 import os
 import sys
 import click
+import led
 
 
-# @click.command()
-# @click.option('--time', default=60, help='Time to record video.')
 if __name__ == "__main__":
+    irled = led.sensor(17)  # Instantiate led class and assign the pin the BCM17
 
     of = '/home/pi/Videos/'  # output folder
     of1 = of + '1stPASS.mp4'
     rectime = '10'  # record time of 60s
 
     # ffmpeg 1st Pass record
+    irled.on()  # Turn led on
     arec = subprocess.Popen(['arecord', '-D', 'mic_mono', '-c1', '-r', '48000', '-f',
                              'S32_LE', '-t', 'wav', '-V', 'mono', '-v', 'audio'], stdout=subprocess.PIPE)
     ffmpeg1 = subprocess.Popen(['ffmpeg', '-f', 'v4l2', '-r', '25', '-video_size', '1280x720', '-pixel_format', 'yuv422p', '-input_format',
@@ -22,6 +23,7 @@ if __name__ == "__main__":
     arec.stdout.close()  # pipe is already attached to ffmpeg1, and unneeded in this process
     ffmpeg1.wait()
     arec.terminate()
+    irled.off()  # Turn led off
 
     # ffprobe to extract recording time and date and turn into offset seconds
     command = ['ffprobe', '-v', 'error', '-show_entries', 'format_tags=creation_time', '-of',
@@ -59,5 +61,7 @@ if __name__ == "__main__":
         os.remove(of1)
         os.remove(of2)
         os.remove("/home/pi/jackTest/audio")
+
+    # led.value = 0
 
     sys.exit()

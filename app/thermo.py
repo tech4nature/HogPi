@@ -86,7 +86,7 @@ class sensor:
         numpy_average = numpy.average(data_float)  # Complete avarage
         numpy_max = numpy.amax(data_float)  # max value of array
         avrgtemp = round(numpy_average, 2)
-        tup_temp_refined = (start, int(avrgtemp))
+        tup_temp_refined = (start, avrgtemp)
         fileRW.write("/home/pi/" + writefile, tup_temp_refined)
         name = str(readfile.split('.csv')[0]).replace('_', ' ')
         if debug == True:
