@@ -1,42 +1,43 @@
+import output
 import post
-import video
+import power
 import subprocess
 import thermo
 import weight
-import power
-import output
+from time import sleep
+from datetime import datetime
+
+fileRW = output.Output()
+web = post.http()
+battery = power.Power()
+thermo_sensor = thermo.sensor()
+weight_sensor = weight.sensor()
 
 
-def main_menu():
-    x = input("w = weight \nt = temp \np = post \nv = video \n")
+while True:
+    d = datetime.now()
+    hrs = int(d.strftime("%H"))
+    min = int(d.strftime("%M"))
+    sec = int(d.strftime("%S"))
+    time = sec + (min * 60) + (hrs * 3600)
+    print(time)
 
-    if x == "t":
-        temperature = thermo.sensor()
-        temperature.write('temp.csv', True)
-        temperature.avrg('temp.csv', 'avrtemp.csv', True)
-        main_menu()
-
-    elif x == "v":
-        test = subprocess.Popen(['python3', 'video.py'])
-        test.wait()
-        main_menu()
-
-    elif x == "w":
-        weight_sensor = weight.sensor()
+    if time % 60 == 0:
         weight_sensor.tare_weight(0.6)
-        weight_sensor.read(True)
-        weight_sensor.write('weight.csv', True)
-        weight_sensor.avrg('weight.csv', 'avrweight.csv', 0.95, True)
-        # weight_sensor.tare_weight(100)  # 100 = min tolerance
-        main_menu()
 
-    elif x == "p":
-        web = post.http()
-        out = output.Output()
-        json_file = out.write_json('The Hedgehog Box of Doom', 'Jack Whitehorn', '65 Horns Road', 'Stroud, Gloucstershire', 'Gl5 1EB', 'OK',
-                                   'gaberielbkyne@gmail.com', 'Jack Whitehorn', '01453766796', 1, '2019-01-19T00:00:00.000Z', '0', '0', 51.7429235, -2.2057314)
-        web.post("https://hedgehog.bitnamiapp.com/api/boxes", json_file, True)
-        main_menu()
+        weight_sensor.write('weight.csv', debug=True)  # Read Weight
+        thermo_sensor.write(debug=True)  # Read Temperature
+        test = subprocess.Popen(['python3', 'video.py', '--time', '60'])  # Record Video
+        test.wait()  # Wait for Video to Finish
+        weight_sensor.avrg('weight.csv', 'avrgweight.csv', 0.95, True)  # Average Weight
+        thermo_sensor.avrg('temp_in.csv', 'avrgtemp.csv', True)  # Average Temperature
+        thermo_sensor.avrg('temp_out.csv', 'avrgtemp.csv', True)  # Average Temperature
+        weightJSON = fileRW.format_data('avrgweight.csv', 23435445, 2343432,
+                                        'weight')  # Format Weight as JSON
+        tempJSON = fileRW.format_data(['temp_in.csv', 'temp_out.csv'], 23435445, 2343432,
+                                      'temp')  # Format Temperature as JSON
+        web.post("http://10.172.100.26:8192/api/weight/", weightJSON)
+        web.post("http://10.172.100.26:8192/api/temp/", tempJSON)
 
-
-main_menu()
+    else:
+        sleep(1)

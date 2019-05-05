@@ -3,12 +3,16 @@ from datetime import datetime
 from time import strftime
 import os
 import sys
+import click
 
 
+# @click.command()
+# @click.option('--time', default=60, help='Time to record video.')
 if __name__ == "__main__":
+
     of = '/home/pi/Videos/'  # output folder
     of1 = of + '1stPASS.mp4'
-    rectime = '10'  # record time of 10s
+    rectime = '10'  # record time of 60s
 
     # ffmpeg 1st Pass record
     arec = subprocess.Popen(['arecord', '-D', 'mic_mono', '-c1', '-r', '48000', '-f',
