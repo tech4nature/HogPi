@@ -1,10 +1,11 @@
 from hx711 import HX711
 from time import sleep, strftime
 from datetime import datetime, timedelta
-from csv import reader, writer
+from output import Output
 import numpy
 import os
 
+fileRW = Output()
 
 class sensor:
     def __init__(self):
@@ -76,15 +77,12 @@ class sensor:
         return tup_weight
 
     def write(self, filename, debug):
-        with open('/home/pi/' + filename, 'w', newline='') as f:
-            data_writer = writer(f)
-            i = 0
-            while i <= 10:
-                data = self.read(debug)
-                if debug == True:
-                    print("Data to write: ", data)
-                data_writer.writerow(data)
-                i += 1
+        while i <= 10:
+            data = self.read(debug)
+            if debug == True:
+                print("Data to write: ", data)
+            fileRW.write("/home/pi/" + filename)
+            i += 1
 
     def avrg(self, readfile, writefile, percentage_of_max, debug):
         # declarations
@@ -93,49 +91,45 @@ class sensor:
         count = True
         start = []  # declare before use to avoid undeclared error
         starttime = ""  # declare before use to avoid undeclared error
-        with open("/home/pi/" + readfile, 'r') as f:
-            data_reader = reader(f, delimiter=',')
-            times = []
-            data = []
-            for row in data_reader:
-                times.append(row[0])
-                data.append(row[1])
-            data_array = numpy.array(data).astype(numpy.float)
-            # find the mean
-            numpy_average = numpy.average(data_array)  # Complete avarage
-            numpy_max = numpy.amax(data_array)  # max value of array
-            if debug == True:
-                print("Average is...", numpy_average)
-                print("Max value is ....", numpy_max)
-            j = 0
-            # avoids zero division
-            if numpy_max == 0:
-                numpy_max = 0.1
-            for i in numpy.nditer(data_array):  # why data array when data is list ??
-                if (i/numpy_max) > percentage_of_max:  # only those close to max
-                    sum_count = sum_count + i  # count the sum
-                    valid_number = valid_number + 1  # count the number
-                    if count == True:  # need to get index of i then lookup timestamp
-                        start = times[j]
-                        starttime = datetime.strptime(
-                            start, '%Y %m %d %H %M %S')  # 1st item in list times
-                        count = False
-                    if debug == True:
-                        print(i)
-                else:
-                    if debug == True:
-                        print("Do not use")
-                j += 1
-            if valid_number == 0:
-                # check for zero division
-                valid_number = 1
-            # calculate averages
-            sp_average = sum_count/valid_number  # gives average weight of hedgehog
-            tup_weight_refined = (start, sp_average)
-            if debug == True:
-                print(sum_count)
-                print(valid_number)
-                print("The real average is: ", sp_average)
-                print("Start time is: ", starttime)
-                print("The combined data is: ", tup_weight_refined)
-            return tup_weight_refined  # http post this value
+        times = fileRW.read("/home/pi/" + readfile, 0, True)
+        data = fileRW.read("/home/pi/" + readfile, 1, True)
+        data_array = numpy.array(data).astype(numpy.float)
+        # find the mean
+        numpy_average = numpy.average(data_array)  # Complete avarage
+        numpy_max = numpy.amax(data_array)  # max value of array
+        if debug == True:
+            print("Average is...", numpy_average)
+            print("Max value is ....", numpy_max)
+        j = 0
+        # avoids zero division
+        if numpy_max == 0:
+            numpy_max = 0.1
+        for i in numpy.nditer(data_array):  # why data array when data is list ??
+            if (i/numpy_max) > percentage_of_max:  # only those close to max
+                sum_count = sum_count + i  # count the sum
+                valid_number = valid_number + 1  # count the number
+                if count == True:  # need to get index of i then lookup timestamp
+                    start = times[j]
+                    starttime = datetime.strptime(
+                        start, '%Y %m %d %H %M %S')  # 1st item in list times
+                    count = False
+                if debug == True:
+                    print(i)
+            else:
+                if debug == True:
+                    print("Do not use")
+            j += 1
+        if valid_number == 0:
+            # check for zero division
+            valid_number = 1
+        # calculate averages
+        sp_average = sum_count/valid_number  # gives average weight of hedgehog
+        tup_weight_refined = (start, sp_average)
+        fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
+        if debug == True:
+            print(sum_count)
+            print(valid_number)
+            print("The real average is: ", sp_average)
+            print("Start time is: ", starttime)
+            print("The combined data is: ", tup_weight_refined)
+        return tup_weight_refined  # http post this value

@@ -1,10 +1,8 @@
 import requests
 
-
 class http:
-    def post(self, web_address, key, data_to_send, debug):
+    def post(self, web_address, json_to_send, debug=False):
         if debug == True:
-            print("Web addrs: ", web_address)
-            print("Key: ", key)
-            print("Data to send: ", data_to_send)
-        requests.post(web_address, data={key: data_to_send})
+            print("Web address: ", web_address)
+            print("Data to send: ", json_to_send)
+        requests.post(web_address, json=json_to_send)
