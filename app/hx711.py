@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import numpy  # sudo apt-get install python3-pip && pip3 install numpy
+from csv import reader, writer
 
 
 class HX711:
@@ -124,11 +125,35 @@ class HX711:
 
         return values / times
 
+    def store_offset(self):
+        with open('/home/pi/tare_weight.csv', 'w+') as f:
+            # write using the csv object change from float to string
+            f.write(str(self.OFFSET))
+            print("complete writing self.OFFSET")
+        return
+
+    def store_offset_read(self):
+        with open('/home/pi/tare_weight.csv', 'r') as w_csvfile:
+            mylist = [row[0] for row in reader(w_csvfile, delimiter=';')]
+            store_offset = float(mylist[0])
+        return store_offset
+
     def get_value(self, times=3):
+        print("reading get values")
+        self.store_offset()
         return self.read_average(times) - self.OFFSET
+
+    def get_value_no_tare(self, times=3):
+        print("get_value_no_tare")
+        return self.read_average(times) - self.store_offset_read()
 
     def get_weight(self, times=3):
         value = self.get_value(times)
+        value = value / self.REFERENCE_UNIT
+        return value
+
+    def get_weight_no_tare(self, times=3):
+        value = self.get_value_no_tare(times)
         value = value / self.REFERENCE_UNIT
         return value
 

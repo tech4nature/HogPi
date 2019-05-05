@@ -10,13 +10,13 @@ class sensor:
     def __init__(self):
         # Sets up scales
         global hx
-        global TARE_WEIGHT
-        TARE_WEIGHT = 0
+        self.No_Tare = False
         hx = HX711(5, 6)
         hx.set_reading_format("LSB", "MSB")
-        hx.set_reference_unit(391)
+        hx.set_reference_unit(391)  # 391
         hx.reset()
         hx.tare()
+
         check = os.path.isfile('/home/pi/weight.csv')  # checks if file exists
         if check == False:
             open("/home/pi/weight.csv", 'x')  # if not creates file
@@ -24,15 +24,7 @@ class sensor:
         if check == False:
             open("/home/pi/tare_weight.csv", 'x')  # if not creates file
 
-    def tare_weight(self, min_tolerance):
-        with open('/home/pi/tare_weight.csv', 'r') as r_csvfile:  # open tare_weight.csv and get value
-            mylist = [row[1] for row in reader(r_csvfile, delimiter=',')]
-            if mylist:  # checks if there is something in mylist
-                old_min_weight = float(mylist[-1])  # gets last element
-            else:
-                old_min_weight = 0
-            print("old weight tare  ", old_min_weight)
-
+    def tare_weight(self, decimal_of_max):
         # checks if weight.csv exists and is non-empty
         if os.path.isfile('/home/pi/weight.csv') and os.path.getsize('/home/pi/weight.csv') > 0:
             with open('/home/pi/weight.csv', 'r') as r_csvfile:
@@ -41,42 +33,42 @@ class sensor:
                 for row in data_reader:
                     data.append(row[1])
                 a = numpy.array(data).astype(numpy.float)
-                numpy_min = numpy.amin(a)
-                print("this is ", numpy_min)
-                # only write if the min is in acceptable range usually +-100 of last Value
-                if numpy_min < min_tolerance and numpy_min > -min_tolerance:
-                    with open('/home/pi/tare_weight.csv', 'w') as w_csvfile:
-                        data_writer = writer(w_csvfile, delimiter=',')
-                        tup_tare = (self.get_time(False), str(numpy_min))
-                        data_writer.writerow(tup_tare)
-                        print("complete writing")
-                else:
-                    # otherwise assume hedgehog stayed in box keep lower value of tare
-                    print("hedgehog in box")
-                    numpy_min = old_min_weight
-                TARE_WEIGHT = numpy_min
-            print("This is the new tareweight variable..", TARE_WEIGHT)
+        print("this is last value to use as a[-1]", a[-1])
+        # test if the last value is below 90% retare weight
+        if a[-1] > decimal_of_max*numpy.amax(a) and a[-1] > 100:
+            # set flag to allow no tare
+            self.No_Tare = True
+            print("Set this if you do not want a tare")
+        else:
+            # set flag to allow tare
+            self.No_Tare = False
+            print("Set this if you  WANT a tare")
         return
 
     def get_time(self, debug):
         d = datetime.now()
         x = d.strftime("%Y %m %d %H %M %S")
-        if debug == True:
+        if debug is True:
             print("Raw time: ", d)
             print("Refined time: ", x)
         return x
 
     def read(self, debug):
         # Gets data off of weight scales
-        val = hx.get_weight(5)
+        if self.No_Tare is False:
+            # tare weight unless set to true
+            val = hx.get_weight(5)
+        else:
+            # Do not tare weight but use stored value
+            val = hx.get_weight_no_tare(5)
+        # reslove zero values for negatives
         if val < 0:
             val = 0
         t = self.get_time(False)
-        val -= TARE_WEIGHT
         tup_weight = (t, val)
         hx.power_down()
         hx.power_up()
-        if debug == True:
+        if debug is True:
             print("Time: ", t)
             print("Data: ", val)
             print("Combined: ", tup_weight)
@@ -97,8 +89,10 @@ class sensor:
     def avrg(self, readfile, writefile, percentage_of_max, debug):
         # declarations
         sum_count = 0  # declare before sum_count
-        valid_number = 0  # decalare befors use
+        valid_number = 0  # decalare before use to avoid negative division
         count = True
+        start = []  # declare before use to avoid undeclared error
+        starttime = ""  # declare before use to avoid undeclared error
         with open("/home/pi/" + readfile, 'r') as f:
             data_reader = reader(f, delimiter=',')
             times = []
@@ -114,6 +108,9 @@ class sensor:
                 print("Average is...", numpy_average)
                 print("Max value is ....", numpy_max)
             j = 0
+            # avoids zero division
+            if numpy_max == 0:
+                numpy_max = 0.1
             for i in numpy.nditer(data_array):  # why data array when data is list ??
                 if (i/numpy_max) > percentage_of_max:  # only those close to max
                     sum_count = sum_count + i  # count the sum
@@ -129,6 +126,10 @@ class sensor:
                     if debug == True:
                         print("Do not use")
                 j += 1
+            if valid_number == 0:
+                # check for zero division
+                valid_number = 1
+            # calculate averages
             sp_average = sum_count/valid_number  # gives average weight of hedgehog
             tup_weight_refined = (start, sp_average)
             if debug == True:
