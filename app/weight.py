@@ -15,7 +15,7 @@ class sensor:
         self.No_Tare = False
         hx = HX711(5, 6)
         hx.set_reading_format("LSB", "MSB")
-        hx.set_reference_unit(391)  # 391
+        hx.set_reference_unit(580)  # 391
         hx.reset()
         hx.tare()
 
@@ -29,11 +29,6 @@ class sensor:
     def tare_weight(self, decimal_of_max, debug=False):
         # checks if weight.csv exists and is non-empty
         if os.path.isfile('/home/pi/weight.csv') and os.path.getsize('/home/pi/weight.csv') > 0:
-            # with open('/home/pi/weight.csv', 'r') as r_csvfile:
-            #     data_reader = reader(r_csvfile, delimiter=',')
-            #     data = []
-            #     for row in data_reader:
-            #         data.append(row[1])
             data = fileRW.read('/home/pi/weight.csv', 1)
             a = numpy.array(data).astype(numpy.float)
             print("this is last value to use as a[-1]", a[-1])
@@ -85,7 +80,7 @@ class sensor:
             data = self.read(debug)
             if debug == True:
                 print("Data to write: ", data)
-            fileRW.write("/home/pi/" + filename, data)
+            fileRW.write("/home/pi/" + filename, data, debug=False) # append
             i += 1
             print('this is the iteration: ' + str(i))
             print(time)
@@ -130,7 +125,7 @@ class sensor:
             valid_number = 1
         # calculate averages
         sp_average = sum_count/valid_number  # gives average weight of hedgehog
-        tup_weight_refined = (start, "%.2f" % sp_average)
+        tup_weight_refined = ("Average Weight", start, "%.2f" % sp_average)
         fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
         if debug == True:
             print(sum_count)
@@ -138,4 +133,7 @@ class sensor:
             print("The real average is: ", sp_average)
             print("Start time is: ", starttime)
             print("The combined data is: ", tup_weight_refined)
+        fileRW.clear_data("/home/pi/" + writefile)# clear contents
+        fileRW.clear_data("/home/pi/" + readfile)# clear contents
         return tup_weight_refined  # http post this value
+    # delete file after use to give clean

@@ -1,26 +1,16 @@
-import RPi.GPIO as GPIO
+import subprocess
+from datetime import datetime
 import time
-from gpiozero import PWMLED
+import os
+import sys
+import led
 
-led = PWMLED(17)
+irled = led.sensor(17)
 while True:
-    led.value = 1
-    print("on")
-    time.sleep(10)
-    led.value = 0
-    print("off")
-    time.sleep(10)
 
-"""
-while True:
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
-    GPIO.setup(17, GPIO.OUT)
-    print("LED on")
-    GPIO.output(17, GPIO.HIGH)
-    time.sleep(10)
-    print("LED off")
-    GPIO.output(17, GPIO.LOW)
-    time.sleep(10)
-"""
-# LED test
+    print('on')  # Instantiate led class and assign the pin the BCM17
+    irled.on()  # Turn led on
+    time.sleep(5)
+    print('off')
+    irled.off()  # Turn led off
+    time.sleep(5)

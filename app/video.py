@@ -3,7 +3,6 @@ from datetime import datetime
 from time import strftime
 import os
 import sys
-import click
 import led
 
 
@@ -16,6 +15,7 @@ if __name__ == "__main__":
 
     # ffmpeg 1st Pass record
     irled.on()  # Turn led on
+
     arec = subprocess.Popen(['arecord', '-D', 'mic_mono', '-c1', '-r', '48000', '-f',
                              'S32_LE', '-t', 'wav', '-V', 'mono', '-v', 'audio'], stdout=subprocess.PIPE)
     ffmpeg1 = subprocess.Popen(['ffmpeg', '-f', 'v4l2', '-r', '25', '-video_size', '1280x720', '-pixel_format', 'yuv422p', '-input_format',
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     # ffmpeg 3rd pass to add BITC and flip video !
     # of3 = of + filename + '.mp4'  # time coded file for later use
     of3 = of + 'hog_video.mp4'
-    filter = 'vflip, drawtext=fontfile=/usr/share/fonts/truetype/freefont/FreeSans.ttf:fontsize=48:text=\'%{pts\:localtime\:' + \
+    filter = 'vflip, drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text=\'%{pts\:localtime\:' + \
         str(offset) + '\\:%Y %m %d %H %M %S}\': fontcolor=white@1: x=10: y=10'
     print(filter)
     ffmpeg3 = subprocess.Popen(['ffmpeg', '-i', of2, '-vf', filter, '-c:v', 'libx264', '-preset',
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     if ffmpeg3.returncode == 0:
         os.remove(of1)
         os.remove(of2)
-        os.remove("/home/pi/jackTest/audio")
+        # os.remove("/home/pi/jackTest/audio")
 
     # led.value = 0
 

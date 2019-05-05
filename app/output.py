@@ -6,11 +6,17 @@ from ftplib import FTP
 class Output:
     @staticmethod
     def write(filename, data, debug=False):
-        with open(filename, 'w') as f:
+        with open(filename, 'a') as f:
             data_writer = writer(f)
             if debug == True:
                 print("Data to write: ", data)
             data_writer.writerow(data)
+
+    @staticmethod
+    def clear_data(path):
+        with open(path, 'w') as f:
+            f.truncate() # clear
+            
 
     @staticmethod
     def read(filename, column, debug=False):

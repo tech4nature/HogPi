@@ -13,14 +13,16 @@ class sensor:
             bytesize=serial.EIGHTBITS,
             timeout=0,
         )
-        ser.write(b'SD2\r\n')
+        # ser.write(b'SD2\r\n')
 
     def read(self):
+        # ser.reset_input_buffer()
+        ser.reset_output_buffer()
         ser.write(b'rat\r\n')
         a = ser.read(34).decode('utf-8')
         if '?1' in a:
-            return 'Tag not present'
-            # ser.read(3)
+            return 'TagNotPresent'
+
         else:
             a = str(a)  # change to a proper string
             a = a[0:16]  # just send unique data part withou error code

@@ -10,7 +10,7 @@ class ftp:
         SOURCE_DIR = '/home/pi/Videos/'
         # Sets up ftp
 
-    def send_video(self, video_name, ftp_user, ftp_password, ftp_directory, box_id=1001, hog_id=1234):
+    def send_video(self, video_name, ftp_user, ftp_password, ftp_directory, hog_id, box_id=1001):
 
         send_time = datetime.datetime.now().strftime('%d-%m-%YT%H:%M:%S')
         filename = video_name + '_' + send_time + '_' + str(box_id) + '_' + str(hog_id) + '.mp4'
