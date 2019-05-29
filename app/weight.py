@@ -80,7 +80,7 @@ class sensor:
             data = self.read(debug)
             if debug == True:
                 print("Data to write: ", data)
-            fileRW.write("/home/pi/" + filename, data, debug=False) # append
+            fileRW.write("/home/pi/" + filename, data, debug=False)  # append
             i += 1
             print('this is the iteration: ' + str(i))
             print(time)
@@ -133,7 +133,5 @@ class sensor:
             print("The real average is: ", sp_average)
             print("Start time is: ", starttime)
             print("The combined data is: ", tup_weight_refined)
-        fileRW.clear_data("/home/pi/" + writefile)# clear contents
-        fileRW.clear_data("/home/pi/" + readfile)# clear contents
         return tup_weight_refined  # http post this value
     # delete file after use to give clean

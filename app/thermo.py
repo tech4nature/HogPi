@@ -14,7 +14,6 @@ class sensor:
         os.system('modprobe w1-gpio')
         os.system('modprobe w1-therm')
 
-
         global base_dir
         global device_folder1
         global device_folder2
@@ -94,6 +93,4 @@ class sensor:
             print("Average temperature for " + name + " is: ", avrgtemp)
             print("Max temperature for " + name + " is: ", numpy_max)
             print("Conbined data for " + name + " is: ", tup_temp_refined)
-        fileRW.clear_data("/home/pi/" + writefile)# clear contents
-        fileRW.clear_data("/home/pi/" + readfile)# clear contents
         return tup_temp_refined  # posted to http server
