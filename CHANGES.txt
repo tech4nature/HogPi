@@ -1,0 +1,8 @@
+Changes to the HogPi codebase in the refactor
+
+1. Only post data if each script runs
+2. Posts all videos in a directory, this allows internet outages to not be fatal, and only deletes videos once they have been sent
+3. Added timeouts to most processes, so the script can continue if they crash, this also works with the new post system
+4. RFID now uses SD2 instead of RAT because this allows for the use of serial.Serial.read_until which simplifies rfid.py significantly
+5. Moved file cleanup to hedge.py
+6. Now flipping video horizontally (Dad's insistance!) so video files are correct

@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     # ffmpeg 3rd pass to add BITC and flip video !
     of3 = of + filename + '_int.mp4'  # added _int to demark internal camera
-    filter = 'vflip, drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text=\'%{pts\:localtime\:' + \
+    filter = 'vflip, hflip, drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text=\'%{pts\:localtime\:' + \
         str(offset) + '\\:%Y %m %d %H %M %S}\': fontcolor=white@1: x=10: y=10'
     print(filter)
     ffmpeg3 = subprocess.Popen(['ffmpeg', '-i', of2, '-vf', filter, '-c:v', 'libx264', '-preset',
