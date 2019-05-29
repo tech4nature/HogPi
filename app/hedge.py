@@ -47,24 +47,41 @@ def post(box_id, hog_id):
     if to_post['weight'] == True:
         weight = fileRW.read('/home/pi/avrgweight.csv', 2)
         times = fileRW.read('/home/pi/avrgweight.csv', 1)
+        posts_success = True
         for i in range(len(weight)):
             time = datetime.strptime(times[i], "%Y %m %d %H %M %S")
             if weight[i] == '0.00':
                 pass
             else:
-                client.create_weight(box_id, 'hog-' + hog_id, weight[i], time)
+                post = client.create_weight(box_id, 'hog-' + hog_id, weight[i], time)
+                if post == 'ERROR':
+                    posts_success = False
+
+        if posts_success == True:
+            os.remove('/home/pi/avrgweight.csv')
 
     if to_post['temp'] == True:
         temps_in = fileRW.read('/home/pi/avrgtemp_in.csv', 1)
         temps_out = fileRW.read('/home/pi/avrgtemp_out.csv', 1)
         times_in = fileRW.read('/home/pi/avrgtemp_in.csv', 0)
         times_out = fileRW.read('/home/pi/avrgtemp_out.csv', 0)
+        posts = []
+        posts_success = True
         for i in range(len(temps_in)):
             time_in = datetime.strptime(times_in[i], "%Y %m %d %H %M %S")
-            client.create_inside_temp(box_id, temps_in[i], time_in)
+            posts.append(client.create_inside_temp(box_id, temps_in[i], time_in))
+
         for i in range(len(temps_out)):
             time_out = datetime.strptime(times_out[i], "%Y %m %d %H %M %S")
-            client.create_outside_temp(box_id, temps_out[i], time_out)
+            posts.append(client.create_outside_temp(box_id, temps_out[i], time_out))
+
+        for post in posts:
+            if post == 'ERROR':
+                posts_success = False
+
+        if posts_success == True:
+            os.remove('/home/pi/avrgtemp_in.csv')
+            os.remove('/home/pi/avrgtemp_out.csv')
 
     if to_post['video'] == True:
         os.chdir('/home/pi/Videos')
@@ -72,8 +89,11 @@ def post(box_id, hog_id):
         for file in files[0]:
             strtime = file.split('_')[0]
             time = datetime.strptime(strtime, '%Y-%m-%d-%H-%M-%S')
-            client.upload_video(box_id, 'hog-' + hog_id, '/home/pi/Videos/' + file, time)
-            os.remove('/home/pi/Videos/' + file)
+            post = client.upload_video(box_id, 'hog-' + hog_id, '/home/pi/Videos/' + file, time)
+            if post == 'ERROR':
+                pass
+            else:
+                os.remove('/home/pi/Videos/' + file)
 
 
 def cleanup():
