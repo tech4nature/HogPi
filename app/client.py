@@ -18,12 +18,12 @@ def create_location(code, name):
         HOGHOST + '/api/locations/', data=data, auth=AUTH).json()
 
 
-def _create_measurement(location_id, measurement_type,
+def _create_measurement(location_id, measurement_type, time,
                         measurement=None, hog_id=None):
     data = {
         "hog_id": hog_id,
         "measurement_type": measurement_type,
-        "observed_at": datetime.utcnow().isoformat(),
+        "observed_at": time.isoformat(),
         "location_id": location_id
     }
     if measurement is not None:
@@ -33,20 +33,20 @@ def _create_measurement(location_id, measurement_type,
         HOGHOST + '/api/measurements/', data=data, auth=AUTH).json()
 
 
-def create_weight(location_id, hog_id, weight):
-    return _create_measurement(location_id, "weight", weight, hog_id)
+def create_weight(location_id, hog_id, weight, time):
+    return _create_measurement(location_id, "weight", time, weight, hog_id)
 
 
-def create_inside_temp(location_id, temp):
-    return _create_measurement(location_id, "in_temp", temp)
+def create_inside_temp(location_id, temp, time):
+    return _create_measurement(location_id, "in_temp", time, temp)
 
 
-def create_outside_temp(location_id, temp):
-    return _create_measurement(location_id, "out_temp", temp)
+def create_outside_temp(location_id, temp, time):
+    return _create_measurement(location_id, "out_temp", time, temp)
 
 
-def upload_video(location_id, hog_id, video_path):
-    measurement = _create_measurement(location_id, "video", hog_id=hog_id)
+def upload_video(location_id, hog_id, video_path, time):
+    measurement = _create_measurement(location_id, "video", time, hog_id=hog_id)
     print(measurement)
     measurement_id = measurement['id']
     files = {'video': open(video_path, 'rb')}

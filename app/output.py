@@ -1,6 +1,7 @@
 from csv import writer, reader
 import json
 from ftplib import FTP
+import os
 
 
 class Output:
@@ -14,9 +15,8 @@ class Output:
 
     @staticmethod
     def clear_data(path):
-        with open(path, 'w') as f:
-            f.truncate() # clear
-            
+        os.remove(path)
+        open(path, 'w+')
 
     @staticmethod
     def read(filename, column, debug=False):

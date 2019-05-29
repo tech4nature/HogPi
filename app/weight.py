@@ -83,17 +83,16 @@ class sensor:
             fileRW.write("/home/pi/" + filename, data, debug=False)  # append
             i += 1
             print('this is the iteration: ' + str(i))
-            print(time)
 
     def avrg(self, readfile, writefile, percentage_of_max, debug=False):
         # declarations
         sum_count = 0  # declare before sum_count
         valid_number = 0  # decalare before use to avoid negative division
         count = True
-        start = []  # declare before use to avoid undeclared error
         starttime = ""  # declare before use to avoid undeclared error
-        times = fileRW.read("/home/pi/" + readfile, 0, True)
-        data = fileRW.read("/home/pi/" + readfile, 1, True)
+        times = fileRW.read("/home/pi/" + readfile, 0, debug)
+        data = fileRW.read("/home/pi/" + readfile, 1, debug)
+        start = times[0]  # set to 1st time incase no weight readings
         data_array = numpy.array(data).astype(numpy.float)
         # find the mean
         numpy_average = numpy.average(data_array)  # Complete avarage
@@ -102,8 +101,7 @@ class sensor:
             print("Average is...", numpy_average)
             print("Max value is ....", numpy_max)
         j = 0
-        # avoids zero division
-        if numpy_max == 0:
+        if numpy_max == 0:  # avoids zero division
             numpy_max = 0.1
         for i in numpy.nditer(data_array):  # why data array when data is list ??
             if (i/numpy_max) > percentage_of_max:  # only those close to max
@@ -111,8 +109,6 @@ class sensor:
                 valid_number = valid_number + 1  # count the number
                 if count == True:  # need to get index of i then lookup timestamp
                     start = times[j]
-                    starttime = datetime.strptime(
-                        start, '%Y %m %d %H %M %S')  # 1st item in list times
                     count = False
                 if debug == True:
                     print(i)
@@ -123,10 +119,14 @@ class sensor:
         if valid_number == 0:
             # check for zero division
             valid_number = 1
+            starttime = datetime.strptime(
+                start, '%Y %m %d %H %M %S')  # 1st item in list times
         # calculate averages
         sp_average = sum_count/valid_number  # gives average weight of hedgehog
         tup_weight_refined = ("Average Weight", start, "%.2f" % sp_average)
         fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
+        # delete file after use to give clean start for next average
+        os.remove("/home/pi/" + readfile)
         if debug == True:
             print(sum_count)
             print(valid_number)
@@ -134,4 +134,3 @@ class sensor:
             print("Start time is: ", starttime)
             print("The combined data is: ", tup_weight_refined)
         return tup_weight_refined  # http post this value
-    # delete file after use to give clean

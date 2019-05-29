@@ -28,7 +28,7 @@ class sensor:
         temp_in = device_folder2 + '/w1_slave'
         temp_sensors = [temp_in, temp_out]
 
-        check = os.path.isfile('/home/pi/weight.csv')  # checks if file exists
+        check = os.path.isfile('/home/pi/avrgtemp_in.csv')  # checks if file exists
         if check == False:
             open("/home/pi/avrgtemp.csv", 'x')  # if not creates file
 
@@ -88,6 +88,8 @@ class sensor:
         avrgtemp = round(numpy_average, 2)
         tup_temp_refined = (start, avrgtemp)
         fileRW.write("/home/pi/" + writefile, tup_temp_refined)
+        # delete file after use to give clean start for next average
+        os.remove("/home/pi/" + readfile)
         name = str(readfile.split('.csv')[0]).replace('_', ' ')
         if debug == True:
             print("Average temperature for " + name + " is: ", avrgtemp)
