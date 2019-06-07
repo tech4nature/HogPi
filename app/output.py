@@ -29,6 +29,7 @@ class Output:
 
     @staticmethod
     def setup_hogbox(name, owner, address1, address2, postcode, status, email, maint, phone, occupants, setupdate, field1, field2, x, y):
+        # XXX unused?
         a = {"name": name,
              "owner": owner,
              "address1": address1,
@@ -51,6 +52,7 @@ class Output:
 
     @staticmethod
     def format_data_weight(filename, hog_id, box_id, type):
+        # XXX unused?
         with open('/home/pi/' + filename, 'r') as f:
             data_reader = reader(f, delimiter=',')
             times = []
@@ -68,6 +70,7 @@ class Output:
 
     @staticmethod
     def format_data_temp(filenames, hog_id, box_id, type):
+        # XXX unused?
         data_both = []
         for filename in filenames:
             with open('/home/pi/' + filename, 'r') as f:
@@ -89,6 +92,7 @@ class Output:
 
     @staticmethod
     def ftp_video(filename, server, username, password):
+        # XXX unused?
         ftp = FTP(server)
         ftp.login(user=username, passwd=password)
 
