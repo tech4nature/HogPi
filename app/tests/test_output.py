@@ -1,6 +1,4 @@
 import os
-from unittest.mock import patch
-from unittest.mock import ANY
 import tempfile
 
 from output import Output
