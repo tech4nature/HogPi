@@ -7,6 +7,8 @@ global tag
 TagFound = None
 tag = None
 
+# docs: http://www.priority1design.com.au/rfidrw-e-ttl.pdf
+
 
 class sensor:
     def __init__(self):
@@ -19,13 +21,12 @@ class sensor:
             bytesize=serial.EIGHTBITS,
             timeout=10
         )
-        # ser.write(b'SD2\r\n') # Sets transponder default to FDX-B(animal tag)
 
     def read(self):
         ser.reset_input_buffer()
         ser.reset_output_buffer()
         ser.write(b'sd2\r\n')
-        a = ser.read_until(size=19).decode('utf-8')
+        a = ser.read_until(size=19).decode('utf-8')  # 16 byte tag + \r + \n somehow is 19 not 18
         print(a)
         if len(a) < 16:
             return 'TagNotPresent'

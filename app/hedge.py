@@ -18,7 +18,7 @@ from datetime import datetime
 #  =======================================
 # Object settings
 #  =======================================
-pir_sensor = pir.sensor(11)
+pir_sensor = pir.sensor(11)  # BCM
 rfid_sensor = rfid.sensor()
 fileRW = output.Output()
 #  =======================================
@@ -53,35 +53,31 @@ def post(box_id, hog_id):
             if weight[i] == '0.00':
                 pass
             else:
-                post = client.create_weight(box_id, 'hog-' + hog_id, weight[i], time)
-                if post == 'ERROR':
-                    posts_success = False
-
-        if posts_success == True:
-            os.remove('/home/pi/avrgweight.csv')
+                try:
+                    client.create_weight(box_id, 'hog-' + hog_id, weight[i], time)
+                    fileRW.clear_data('/home/pi/avrgweight.csv')
+                except requests.exceptions.HTTPError as e:
+                    print(e)
 
     if to_post['temp'] == True:
         temps_in = fileRW.read('/home/pi/avrgtemp_in.csv', 1)
         temps_out = fileRW.read('/home/pi/avrgtemp_out.csv', 1)
         times_in = fileRW.read('/home/pi/avrgtemp_in.csv', 0)
         times_out = fileRW.read('/home/pi/avrgtemp_out.csv', 0)
-        posts = []
         posts_success = True
-        for i in range(len(temps_in)):
-            time_in = datetime.strptime(times_in[i], "%Y %m %d %H %M %S")
-            posts.append(client.create_inside_temp(box_id, temps_in[i], time_in))
+        try:
+            for i in range(len(temps_in)):
+                time_in = datetime.strptime(times_in[i], "%Y %m %d %H %M %S")
+                client.create_inside_temp(box_id, temps_in[i], time_in)
 
-        for i in range(len(temps_out)):
-            time_out = datetime.strptime(times_out[i], "%Y %m %d %H %M %S")
-            posts.append(client.create_outside_temp(box_id, temps_out[i], time_out))
+            for i in range(len(temps_out)):
+                time_out = datetime.strptime(times_out[i], "%Y %m %d %H %M %S")
+                client.create_outside_temp(box_id, temps_out[i], time_out)
+                fileRW.clear_data('/home/pi/avrgtemp_in.csv')
+                fileRW.clear_data('/home/pi/avrgtemp_out.csv')
 
-        for post in posts:
-            if post == 'ERROR':
-                posts_success = False
-
-        if posts_success == True:
-            os.remove('/home/pi/avrgtemp_in.csv')
-            os.remove('/home/pi/avrgtemp_out.csv')
+        except requests.exceptions.HTTPError as e:
+            print(e)
 
     if to_post['video'] == True:
         os.chdir('/home/pi/Videos')
@@ -89,18 +85,21 @@ def post(box_id, hog_id):
         for file in files[0]:
             strtime = file.split('_')[0]
             time = datetime.strptime(strtime, '%Y-%m-%d-%H-%M-%S')
-            post = client.upload_video(box_id, 'hog-' + hog_id, '/home/pi/Videos/' + file, time)
-            if post == 'ERROR':
-                pass
-            else:
+            try:
+                client.upload_video(box_id, 'hog-' + hog_id, '/home/pi/Videos/' + file, time)
                 os.remove('/home/pi/Videos/' + file)
+            except requests.exceptions.HTTPError as e:
+                print(e)
 
 
 def cleanup():
     os.chdir('/home/pi/')
     files_grabbed = [glob.glob(e) for e in ['*.csv']]
     for file in files_grabbed[0]:
-        fileRW.clear_data('/home/pi/' + file)
+        if 'avrg' in file:
+            pass
+        else:
+            fileRW.clear_data('/home/pi/' + file)
 
 
 #  =======================================
@@ -134,7 +133,7 @@ while True:
                         to_post['video'] = False
 
             except Exception as e:
-                print('An error has occured, ' + i + ' will not be posted')
+                print('An error has occured, ' + i + ' will not be posted because' + e)
                 to_post[i] = False
 
         post(box_id, rfid_tag)  # Posts data

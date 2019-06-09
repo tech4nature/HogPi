@@ -74,9 +74,9 @@ class sensor:
         sleep(0.5)
         return tup_weight
 
-    def write(self, filename, time=10, debug=False):
+    def write(self, filename, iterations=10, debug=False):
         i = 0
-        while i <= time:
+        while i <= iterations:
             data = self.read(debug)
             if debug == True:
                 print("Data to write: ", data)

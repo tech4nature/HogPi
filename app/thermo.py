@@ -68,9 +68,9 @@ class sensor:
                 a.append(tup_temp)
         return a
 
-    def write(self, time=60, debug=False):
+    def write(self, iterations=60, debug=False):
         i = 0
-        while i <= time/2:  # Time halved because of the 2 sensors
+        while i <= iterations/2:  # iterations halved because of the 2 sensors
             data = self.read(debug)
             # if debug == True:
             #     print("Data to write: ", data)

@@ -29,12 +29,10 @@ def _create_measurement(location_id, measurement_type, time,
     if measurement is not None:
         data["measurement"] = measurement
 
-    a = requests.post(
+    response = requests.post(
         HOGHOST + '/api/measurements/', data=data, auth=AUTH)
-    if a.status_code == 404:
-        return 'ERROR'
-    else:
-        return a.json()
+    response.raise_for_status()
+    return response.json()
 
 
 def create_weight(location_id, hog_id, weight, time):
