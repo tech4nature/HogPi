@@ -1,0 +1,6 @@
+pytest
+RPi.GPIO
+pysftp
+numpy
+pyserial
+requests

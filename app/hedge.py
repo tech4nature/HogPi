@@ -29,7 +29,6 @@ box_id = 'box-9082242689124'
 # Define functions
 #  =======================================
 
-
 def run(type):
     if type == 'weight':
         weight_sensor = weight.sensor()
@@ -105,7 +104,7 @@ def cleanup():
 #  =======================================
 # Main Loop
 #  =======================================
-while True:
+def main():
     start_time = time.time()
     to_post = {'weight': True, 'temp': True, 'video': True}  # Used for partial posts
     if pir_sensor.read() == 0:
@@ -156,3 +155,6 @@ while True:
             if '.mp4' in file:
                 remoteCam.get(file, '/home/pi/Videos')
                 remoteCam.remove(file)
+
+if __name__ == '__main__':
+    main()
