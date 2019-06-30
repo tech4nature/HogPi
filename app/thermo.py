@@ -28,13 +28,6 @@ class sensor:
         temp_in = device_folder2 + '/w1_slave'
         temp_sensors = [temp_in, temp_out]
 
-        check = os.path.isfile('/home/pi/avrgtemp_in.csv')  # checks if file exists
-        if check == False:
-            open("/home/pi/avrgtemp_in.csv", 'x')  # if not creates file
-        check = os.path.isfile('/home/pi/avrgtemp_out.csv')  # checks if file exists
-        if check == False:
-            open("/home/pi/avrgtemp_out.csv", 'x')  # if not creates file
-
     def get_time(self, debug=False):
         d = datetime.now()
         x = d.strftime("%Y %m %d %H %M %S")
