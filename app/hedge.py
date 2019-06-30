@@ -58,7 +58,7 @@ def post(box_id, hog_id, to_post):
                     client.create_weight(box_id, 'hog-' + hog_id, weight[i], time)
                     fileRW.clear_data('/home/pi/avrgweight.csv')
                 except requests.exceptions.HTTPError as e:
-                    print(e)
+                    print(getattr(e, 'message', repr(e)))
 
     if to_post['temp'] == True:
         temps_in = fileRW.read('/home/pi/avrgtemp_in.csv', 1)
@@ -78,7 +78,7 @@ def post(box_id, hog_id, to_post):
                 fileRW.clear_data('/home/pi/avrgtemp_out.csv')
 
         except requests.exceptions.HTTPError as e:
-            print(e)
+            print(getattr(e, 'message', repr(e)))
 
     if to_post['video'] == True:
         os.chdir('/home/pi/Videos')
@@ -90,7 +90,7 @@ def post(box_id, hog_id, to_post):
                 client.upload_video(box_id, 'hog-' + hog_id, '/home/pi/Videos/' + file, time)
                 os.remove('/home/pi/Videos/' + file)
             except requests.exceptions.HTTPError as e:
-                print(e)
+                print(getattr(e, 'message', repr(e)))
 
 
 def cleanup():
@@ -130,11 +130,11 @@ def main():
                         subprocess.check_output(
                             ['python3', path], timeout=120)
                     except subprocess.CalledProcessError as e:
-                        print('An error has occured, ' + i + ' will not be posted')
+                        print('An error has occured, ' + i + ' will not be posted because' + getattr(e, 'message', repr(e)))
                         to_post['video'] = False
 
             except Exception as e:
-                print('An error has occured, ' + i + ' will not be posted because' + e)
+                print('An error has occured, ' + i + ' will not be posted because' + getattr(e, 'message', repr(e)))
                 to_post[i] = False
 
         post(box_id, rfid_tag, to_post)  # Posts data
