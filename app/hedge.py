@@ -15,6 +15,7 @@ import os
 import pysftp
 import subprocess
 from datetime import datetime
+from pathlib import Path
 #  =======================================
 # Object settings
 #  =======================================
@@ -29,20 +30,20 @@ box_id = 'box-9082242689124'
 # Define functions
 #  =======================================
 
-def run(type):
-    if type == 'weight':
+def read_and_average(measurement_type):
+    if measurement_type == 'weight':
         weight_sensor = weight.sensor()
-        weight_sensor.write('weight.csv', debug=True, time=10)  # Read Weight
+        weight_sensor.write('weight.csv', debug=True, iterations=10)  # Read Weight
         weight_sensor.avrg('weight.csv', 'avrgweight.csv', 0.95, True)  # Average Weight
 
-    elif type == 'temp':
+    elif measurement_type == 'temp':
         thermo_sensor = thermo.sensor()
-        thermo_sensor.write(debug=True, time=10)  # Read Temperature
+        thermo_sensor.write(debug=True, iterations=10)  # Read Temperature
         thermo_sensor.avrg('temp_in.csv', 'avrgtemp_in.csv', True)  # Average Temperature
         thermo_sensor.avrg('temp_out.csv', 'avrgtemp_out.csv', True)  # Average Temperature
 
 
-def post(box_id, hog_id):
+def post(box_id, hog_id, to_post):
     if to_post['weight'] == True:
         weight = fileRW.read('/home/pi/avrgweight.csv', 2)
         times = fileRW.read('/home/pi/avrgweight.csv', 1)
@@ -92,8 +93,7 @@ def post(box_id, hog_id):
 
 
 def cleanup():
-    os.chdir('/home/pi/')
-    files_grabbed = [glob.glob(e) for e in ['*.csv']]
+    files_grabbed = [glob.glob(e) for e in ['/home/pi/*.csv']]
     for file in files_grabbed[0]:
         if 'avrg' in file:
             pass
@@ -107,7 +107,7 @@ def cleanup():
 def main():
     start_time = time.time()
     to_post = {'weight': True, 'temp': True, 'video': True}  # Used for partial posts
-    if pir_sensor.read() == 0:
+    if pir_sensor.read() == 1:
         print('Started')
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
@@ -116,7 +116,7 @@ def main():
         for i in to_post:
             try:
                 if i != 'video':  # Video had to be run outside of Process
-                    process = Process(target=run(i))
+                    process = Process(target=read_and_average(i))
                     # We start the process and we block for 120 seconds.
                     process.start()
                     process.join(timeout=120)
@@ -125,8 +125,9 @@ def main():
                 else:  # Runs video
                     print('Running Video')
                     try:
+                        path = Path(__file__).resolve().parents / 'video.py'
                         subprocess.check_output(
-                            ['python3', '/home/pi/v0.8.3/video.py'], timeout=120)
+                            ['python3', '/home/pi/HogPi/app/video.py'], timeout=120)
                     except subprocess.CalledProcessError as e:
                         print('An error has occured, ' + i + ' will not be posted')
                         to_post['video'] = False
@@ -135,7 +136,7 @@ def main():
                 print('An error has occured, ' + i + ' will not be posted because' + e)
                 to_post[i] = False
 
-        post(box_id, rfid_tag)  # Posts data
+        post(box_id, rfid_tag, to_post)  # Posts data
         print('Post Completed')
         cleanup()
         #  =======================================
@@ -157,4 +158,5 @@ def main():
                 remoteCam.remove(file)
 
 if __name__ == '__main__':
-    main()
+    while True:
+        main()
