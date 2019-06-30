@@ -26,6 +26,7 @@ fileRW = output.Output()
 # Variable settings
 #  =======================================
 box_id = 'box-9082242689124'
+cycle_time = 600
 #  =======================================
 # Define functions
 #  =======================================
@@ -144,18 +145,8 @@ def main():
         #  =======================================
         end_time = time.time()
         time_taken = end_time - start_time
-        if time_taken < 600:
-            time.sleep(600 - time_taken)
-
-    elif start_time % 3600 <= 60:
-        remoteCam = pysftp.Connection('raspberrypi.local', username='pi', password='hog1hog1')
-        remoteCam.cd('/home/pi/Videos')
-        files = remoteCam.list_dir()
-
-        for file in files:
-            if '.mp4' in file:
-                remoteCam.get(file, '/home/pi/Videos')
-                remoteCam.remove(file)
+        if time_taken < cycle_time:
+            time.sleep(cycle_time - time_taken)
 
 if __name__ == '__main__':
     while True:
