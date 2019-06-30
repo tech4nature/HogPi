@@ -127,7 +127,7 @@ def main():
                     try:
                         path = Path(__file__).resolve().parents / 'video.py'
                         subprocess.check_output(
-                            ['python3', '/home/pi/HogPi/app/video.py'], timeout=120)
+                            ['python3', path], timeout=120)
                     except subprocess.CalledProcessError as e:
                         print('An error has occured, ' + i + ' will not be posted')
                         to_post['video'] = False
