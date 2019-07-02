@@ -4,7 +4,8 @@ from time import strftime
 import os
 import sys
 import led
-
+import pytz
+import tzlocal
 
 if __name__ == "__main__":
     irled = led.sensor(17)  # Instantiate led class and assign the pin the BCM17
@@ -28,24 +29,28 @@ if __name__ == "__main__":
                'default=nw=1:nk=1', '-i', of1]
     output = subprocess.check_output(command).decode('utf-8')
     print(output)
-
+    
+    local_timezone = tzlocal.get_localzone() # get pytz tzinfo
     d = output[:-9]
     print(d)
     d = d.replace('-', ' ').replace('T', ' ').replace(':', ' ')
     print(d)
-    filename = d.replace(' ', '-')
+    
     starttime = datetime.strptime(d, '%Y %m %d %H %M %S')
     print(starttime)
-    offset = starttime.timestamp()
+    local_time = starttime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
+    offset = local_time.timestamp()
+    d = local_time.strftime('%Y %m %d %H %M %S')
+    filename = d.replace(' ', '-')
     print(offset)
 
     # ffmpeg 3rd pass to add BITC and flip video !
     of3 = of + filename + '_ext.mp4'  # added _ext to demark external camera
-    filter = 'vflip, drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text=\'%{pts\:localtime\:' + \
+    filter = 'drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text=\'%{pts\:localtime\:' + \
         str(offset) + '\\:%Y %m %d %H %M %S}\': fontcolor=white@1: x=10: y=10'
     print(filter)
     ffmpeg3 = subprocess.Popen(['ffmpeg', '-i', of1, '-vf', filter, '-c:v', 'libx264', '-preset',
-                                'ultrafast', '-r', '25', '-y', of3])  # tried '-c:v', 'h264_omx', '-profile', '100'
+                                'ultrafast', '-r', '25', '-an', '-y', of3])  # tried '-c:v', 'h264_omx', '-profile', '100'
     ffmpeg3.wait()
 
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
