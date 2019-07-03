@@ -25,8 +25,8 @@ class HX711:
         self.MSBit = [0, 8, 1]
         self.LSBit = [7, -1, -1]
 
-        self.byte_format = 'LSB'
-        self.bit_format = 'MSB'
+        self.byte_format = "LSB"
+        self.bit_format = "MSB"
 
         self.byte_range_values = self.LSByte
         self.bit_range_values = self.MSBit
@@ -63,8 +63,16 @@ class HX711:
         dataBits = [self.createBoolList(), self.createBoolList(), self.createBoolList()]
         dataBytes = [0x0] * 4
 
-        for j in range(self.byte_range_values[0], self.byte_range_values[1], self.byte_range_values[2]):
-            for i in range(self.bit_range_values[0], self.bit_range_values[1], self.bit_range_values[2]):
+        for j in range(
+            self.byte_range_values[0],
+            self.byte_range_values[1],
+            self.byte_range_values[2],
+        ):
+            for i in range(
+                self.bit_range_values[0],
+                self.bit_range_values[1],
+                self.bit_range_values[2],
+            ):
                 GPIO.output(self.PD_SCK, True)
                 dataBits[j][i] = GPIO.input(self.DOUT)
                 GPIO.output(self.PD_SCK, False)
@@ -89,7 +97,7 @@ class HX711:
         binary_string = ""
         for i in range(4):
             # binary_segment = binary_format.format(np_arr8[i])
-            binary_segment = format(np_arr8[i], '#010b')
+            binary_segment = format(np_arr8[i], "#010b")
             binary_string += binary_segment + " "
         return binary_string
 
@@ -113,7 +121,7 @@ class HX711:
 
     def read_int(self):
         np_arr8 = self.read_np_arr8()
-        np_arr32 = np_arr8.view('uint32')
+        np_arr32 = np_arr8.view("uint32")
         self.lastVal = np_arr32
 
         return int(self.lastVal)
@@ -126,21 +134,21 @@ class HX711:
         return values / times
 
     def store_offset(self):
-        with open('/home/pi/tare_weight.csv', 'w+') as f:
+        with open("/home/pi/tare_weight.csv", "w+") as f:
             # write using the csv object change from float to string
             f.write(str(self.OFFSET))
-            #print("complete writing self.OFFSET")
+            # print("complete writing self.OFFSET")
         return
 
     def store_offset_read(self):
-        with open('/home/pi/tare_weight.csv', 'r') as r_csvfile:
-            mylist = [row[0] for row in reader(r_csvfile, delimiter=';')]
+        with open("/home/pi/tare_weight.csv", "r") as r_csvfile:
+            mylist = [row[0] for row in reader(r_csvfile, delimiter=";")]
             # print(mylist)
             store_offset = float(mylist[0])
         return store_offset
 
     def get_value(self, times=3):
-        #print("reading get values")
+        # print("reading get values")
         self.store_offset()
         return self.read_average(times) - self.OFFSET
 
