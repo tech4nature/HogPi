@@ -19,21 +19,24 @@ class sensor:
         hx.reset()
         hx.tare()
 
-        check = os.path.isfile('/home/pi/weight.csv')  # checks if file exists
+        check = os.path.isfile("/home/pi/weight.csv")  # checks if file exists
         if check == False:
-            open("/home/pi/weight.csv", 'x')  # if not creates file
-        check = os.path.isfile('/home/pi/tare_weight.csv')  # checks if file exists
+            open("/home/pi/weight.csv", "x")  # if not creates file
+        check = os.path.isfile("/home/pi/tare_weight.csv")  # checks if file exists
         if check == False:
-            open("/home/pi/tare_weight.csv", 'x')  # if not creates file
+            open("/home/pi/tare_weight.csv", "x")  # if not creates file
 
     def tare_weight(self, decimal_of_max, debug=False):
         # checks if weight.csv exists and is non-empty
-        if os.path.isfile('/home/pi/weight.csv') and os.path.getsize('/home/pi/weight.csv') > 0:
-            data = fileRW.read('/home/pi/weight.csv', 1)
+        if (
+            os.path.isfile("/home/pi/weight.csv")
+            and os.path.getsize("/home/pi/weight.csv") > 0
+        ):
+            data = fileRW.read("/home/pi/weight.csv", 1)
             a = numpy.array(data).astype(numpy.float)
             print("this is last value to use as a[-1]", a[-1])
             # test if the last value is below 90% retare weight
-            if a[-1] > decimal_of_max*numpy.amax(a) and a[-1] > 100:
+            if a[-1] > decimal_of_max * numpy.amax(a) and a[-1] > 100:
                 # set flag to allow no tare
                 self.No_Tare = True
                 if debug == True:
@@ -82,7 +85,7 @@ class sensor:
                 print("Data to write: ", data)
             fileRW.write("/home/pi/" + filename, data, debug=False)  # append
             i += 1
-            print('this is the iteration: ' + str(i))
+            print("this is the iteration: " + str(i))
 
     def avrg(self, readfile, writefile, percentage_of_max, debug=False):
         # declarations
@@ -104,7 +107,7 @@ class sensor:
         if numpy_max == 0:  # avoids zero division
             numpy_max = 0.1
         for i in numpy.nditer(data_array):  # why data array when data is list ??
-            if (i/numpy_max) > percentage_of_max:  # only those close to max
+            if (i / numpy_max) > percentage_of_max:  # only those close to max
                 sum_count = sum_count + i  # count the sum
                 valid_number = valid_number + 1  # count the number
                 if count == True:  # need to get index of i then lookup timestamp
@@ -120,9 +123,10 @@ class sensor:
             # check for zero division
             valid_number = 1
             starttime = datetime.strptime(
-                start, '%Y %m %d %H %M %S')  # 1st item in list times
+                start, "%Y %m %d %H %M %S"
+            )  # 1st item in list times
         # calculate averages
-        sp_average = sum_count/valid_number  # gives average weight of hedgehog
+        sp_average = sum_count / valid_number  # gives average weight of hedgehog
         tup_weight_refined = ("Average Weight", start, "%.2f" % sp_average)
         fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
         # delete file after use to give clean start for next average

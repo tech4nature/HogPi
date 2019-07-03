@@ -4,7 +4,7 @@ from unittest.mock import ANY
 import pir
 
 
-@patch('pir.RPi')
+@patch("pir.RPi")
 def test_setup_and_read(mock_rpi):
     """Check the pin is set up correctly, and read.
 

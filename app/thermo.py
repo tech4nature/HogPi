@@ -11,8 +11,8 @@ fileRW = Output()
 class sensor:
     def __init__(self):
         # Sets up thermostat
-        os.system('modprobe w1-gpio')
-        os.system('modprobe w1-therm')
+        os.system("modprobe w1-gpio")
+        os.system("modprobe w1-therm")
 
         global base_dir
         global device_folder1
@@ -21,11 +21,11 @@ class sensor:
         global temp_in
         global temp_sensors
 
-        base_dir = '/sys/bus/w1/devices/'
-        device_folder1 = glob.glob(base_dir + '28*')[0]
-        device_folder2 = glob.glob(base_dir + '28*')[1]
-        temp_out = device_folder1 + '/w1_slave'
-        temp_in = device_folder2 + '/w1_slave'
+        base_dir = "/sys/bus/w1/devices/"
+        device_folder1 = glob.glob(base_dir + "28*")[0]
+        device_folder2 = glob.glob(base_dir + "28*")[1]
+        temp_out = device_folder1 + "/w1_slave"
+        temp_in = device_folder2 + "/w1_slave"
         temp_sensors = [temp_in, temp_out]
 
     def get_time(self, debug=False):
@@ -38,7 +38,7 @@ class sensor:
 
     def read_temp_raw(self, sensor):
         # Gets raw data off the thermostat
-        f = open(sensor, 'r')
+        f = open(sensor, "r")
         lines = f.readlines()
         f.close()
         return lines
@@ -49,12 +49,12 @@ class sensor:
         for temp_sensor in temp_sensors:
             lines = self.read_temp_raw(temp_sensor)
             t = self.get_time(False)
-            while lines[0].strip()[-3:] != 'YES':
+            while lines[0].strip()[-3:] != "YES":
                 sleep(0.2)
                 lines = self.read_temp_raw(temp_sensor)
-            equals_pos = lines[1].find('t=')
+            equals_pos = lines[1].find("t=")
             if equals_pos != -1:
-                temp_string = lines[1][equals_pos+2:]
+                temp_string = lines[1][equals_pos + 2 :]
                 temp_c = float(temp_string) / 1000.0
                 temp_f = temp_c * 9.0 / 5.0 + 32.0
                 tup_temp = (t, temp_sensor, temp_c)
@@ -66,7 +66,7 @@ class sensor:
 
     def write(self, iterations=60, debug=False):
         i = 0
-        while i <= iterations/2:  # iterations halved because of the 2 sensors
+        while i <= iterations / 2:  # iterations halved because of the 2 sensors
             data = self.read(debug)
             # if debug == True:
             #     print("Data to write: ", data)
@@ -86,7 +86,7 @@ class sensor:
         fileRW.write("/home/pi/" + writefile, tup_temp_refined)
         # delete file after use to give clean start for next average
         os.remove("/home/pi/" + readfile)
-        name = str(readfile.split('.csv')[0]).replace('_', ' ')
+        name = str(readfile.split(".csv")[0]).replace("_", " ")
         if debug == True:
             print("Average temperature for " + name + " is: ", avrgtemp)
             print("Max temperature for " + name + " is: ", numpy_max)

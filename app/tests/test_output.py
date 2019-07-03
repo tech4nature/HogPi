@@ -11,7 +11,7 @@ def test_read_write():
     test_output = Output()
     # XXX what happens if different length rows are written?
     # XXX also what if numeric rather than strings?
-    test_data = [['1', '2', '3'], ['4', '5', '6']]
+    test_data = [["1", "2", "3"], ["4", "5", "6"]]
     for row in test_data:
         test_output.write(filename, row)
 
