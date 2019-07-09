@@ -11,5 +11,5 @@ class sensor:
         GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set the PIR to pin 8
 
     def read(self):
-        print(GPIO.input(pin))
+        logger.debug("Read value %s from pin %s", RPi.GPIO.input(pin), pin)
         return GPIO.input(pin)
