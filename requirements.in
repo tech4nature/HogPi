@@ -4,3 +4,4 @@ pysftp
 numpy
 pyserial
 requests
+pytest-cov
