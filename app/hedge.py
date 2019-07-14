@@ -14,6 +14,7 @@ import glob
 import os
 import pysftp
 import subprocess
+import sftp
 from datetime import datetime
 from pathlib import Path
 
@@ -28,6 +29,7 @@ fileRW = output.Output()
 #  =======================================
 box_id = "box-9082242689124"
 cycle_time = 600
+last_ran = None
 #  =======================================
 # Define functions
 #  =======================================
@@ -164,6 +166,10 @@ def main():
         time_taken = end_time - start_time
         if time_taken < cycle_time:
             time.sleep(cycle_time - time_taken)
+
+    elif last_ran != datetime.now().strftime('%H'):
+        last_ran = datetime.now().strftime('%H')
+        sftp.pull_videos('10.172.100.59', 'pi', 'hog1')
 
 
 if __name__ == "__main__":
