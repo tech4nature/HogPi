@@ -115,7 +115,7 @@ def cleanup():
 #  =======================================
 # Main Loop
 #  =======================================
-def main():
+def main(last_ran):
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
     if pir_sensor.read() == 1:
@@ -166,12 +166,17 @@ def main():
         time_taken = end_time - start_time
         if time_taken < cycle_time:
             time.sleep(cycle_time - time_taken)
+        return None
 
     elif last_ran != datetime.now().strftime('%H'):
+        print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
-        sftp.pull_videos('10.172.100.59', 'pi', 'hog1')
+        sftp.pull_videos('10.170.1.11', 'pi', 'hog1hog1')
+        return last_ran
 
 
 if __name__ == "__main__":
     while True:
-        main()
+        result = main(last_ran)
+        if result != None:
+            last_ran = result
