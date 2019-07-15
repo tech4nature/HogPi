@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from output import Output
 import numpy
 import os
+import logging
 
 fileRW = Output()
 
