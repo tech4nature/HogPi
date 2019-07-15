@@ -109,7 +109,7 @@ def cleanup():
         if "avrg" in file:
             pass
         else:
-            fileRW.clear_data("/home/pi/" + file)
+            fileRW.clear_data(file)
 
 
 #  =======================================
@@ -136,8 +136,9 @@ def main(last_ran, box_id, cycle_time):
                 else:  # Runs video
                     print("Running Video")
                     try:
-                        path = Path(__file__).resolve().parents / "video.py"
-                        subprocess.check_output(["python3", path], timeout=120)
+                        path = Path(__file__).resolve().parent / "video.py"
+                        print(path)
+                        subprocess.check_output(["python3", str(path)], timeout=120)
                     except subprocess.CalledProcessError as e:
                         print(
                             "An error has occured, "
@@ -171,10 +172,14 @@ def main(last_ran, box_id, cycle_time):
     elif last_ran != datetime.now().strftime('%H'):
         print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
-        sftp.pull_videos('10.170.1.11', 'pi', 'hog1hog1')
-        to_post = {'weight': False, 'temp': False, 'video': True}
-        post(box_id, 'outside', to_post)
-        return last_ran
+        response = os.system('ping -c 1 10.170.1.11')
+        if 'time' in response:
+            sftp.pull_videos('10.170.1.1', 'pi', 'hog1hog1')
+            to_post = {'weight': False, 'temp': False, 'video': True}
+            post(box_id, 'outside', to_post)
+            return last_ran
+        else:
+            return None
 
 
 if __name__ == "__main__":
