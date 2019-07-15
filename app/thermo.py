@@ -15,18 +15,11 @@ class sensor:
         os.system("modprobe w1-therm")
 
         global base_dir
-        global device_folder1
-        global device_folder2
-        global temp_out
-        global temp_in
         global temp_sensors
-
+        temp_sensors = []
         base_dir = "/sys/bus/w1/devices/"
-        device_folder1 = glob.glob(base_dir + "28*")[0]
-        device_folder2 = glob.glob(base_dir + "28*")[1]
-        temp_out = device_folder1 + "/w1_slave"
-        temp_in = device_folder2 + "/w1_slave"
-        temp_sensors = [temp_in, temp_out]
+        for i in glob.glob(base_dir + "28*"):
+            temp_sensors.append(i + "/w1_slave")
 
     def get_time(self, debug=False):
         d = datetime.now()
@@ -54,7 +47,7 @@ class sensor:
                 lines = self.read_temp_raw(temp_sensor)
             equals_pos = lines[1].find("t=")
             if equals_pos != -1:
-                temp_string = lines[1][equals_pos + 2 :]
+                temp_string = lines[1][equals_pos + 2:]
                 temp_c = float(temp_string) / 1000.0
                 temp_f = temp_c * 9.0 / 5.0 + 32.0
                 tup_temp = (t, temp_sensor, temp_c)

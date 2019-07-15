@@ -177,9 +177,7 @@ def main(last_ran, box_id, cycle_time):
             sftp.pull_videos('10.170.1.1', 'pi', 'hog1hog1')
             to_post = {'weight': False, 'temp': False, 'video': True}
             post(box_id, 'outside', to_post)
-            return last_ran
-        else:
-            return None
+        return last_ran
 
 
 if __name__ == "__main__":
