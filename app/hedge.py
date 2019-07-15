@@ -173,7 +173,7 @@ def main(last_ran, box_id, cycle_time):
         print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
         response = os.system('ping -c 1 10.170.1.11')
-        if 'time' in response:
+        if 0 == response:
             sftp.pull_videos('10.170.1.1', 'pi', 'hog1hog1')
             to_post = {'weight': False, 'temp': False, 'video': True}
             post(box_id, 'outside', to_post)
