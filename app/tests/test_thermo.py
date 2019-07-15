@@ -58,8 +58,8 @@ def test_read(mock_datetime, mock_glob, mock_os):
     # Note that the order is reversed because they are returned in the
     # order of the `temp_sensors` list
     assert result == [
-        ("2000 01 01 00 00 00", sensor_2_name, 22.768),
         ("2000 01 01 00 00 00", sensor_1_name, 32.768),
+        ("2000 01 01 00 00 00", sensor_2_name, 22.768),
     ]
 
 
