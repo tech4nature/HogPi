@@ -30,6 +30,9 @@ fileRW = output.Output()
 box_id = "box-9082242689124"
 cycle_time = 600
 last_ran = None
+PIZERO_IP = '10.170.1.11'
+PIZERO_FTP_USERNAME = 'pi'
+PIZERO_FTP_PASSWORD = 'hog1hog1'
 #  =======================================
 # Define functions
 #  =======================================
@@ -115,7 +118,7 @@ def cleanup():
 #  =======================================
 # Main Loop
 #  =======================================
-def main(last_ran, box_id, cycle_time):
+def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD):
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
     if pir_sensor.read() == 1:
@@ -172,9 +175,9 @@ def main(last_ran, box_id, cycle_time):
     elif last_ran != datetime.now().strftime('%H'):
         print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
-        response = os.system('ping -c 1 10.170.1.11')
+        response = os.system('ping -c 1 ' + PIZERO_IP)
         if 0 == response:
-            sftp.pull_videos('10.170.1.1', 'pi', 'hog1hog1')
+            sftp.pull_videos(PIZERO_IP, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
             to_post = {'weight': False, 'temp': False, 'video': True}
             post(box_id, 'outside', to_post)
         return last_ran
@@ -182,6 +185,7 @@ def main(last_ran, box_id, cycle_time):
 
 if __name__ == "__main__":
     while True:
-        result = main(last_ran, box_id, cycle_time)
+        result = main(last_ran, box_id, cycle_time, PIZERO_IP,
+                      PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
         if result != None:
             last_ran = result
