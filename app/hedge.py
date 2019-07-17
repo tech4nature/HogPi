@@ -115,6 +115,7 @@ def cleanup():
 # Main Loop
 #  =======================================
 def main():
+    logger.info("Main loop heartbeat")
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
     if pir_sensor.read() == 1:
