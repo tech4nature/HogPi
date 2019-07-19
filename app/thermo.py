@@ -16,10 +16,14 @@ class sensor:
 
         global base_dir
         global temp_sensors
+        global num_t_sensor
         temp_sensors = []
         base_dir = "/sys/bus/w1/devices/"
         for i in glob.glob(base_dir + "28*"):
             temp_sensors.append(i + "/w1_slave")
+        num_t_sensor = len(temp_sensors)
+        if num_t_sensor == 0:
+            raise Exception
 
     def get_time(self, debug=False):
         d = datetime.now()
@@ -64,10 +68,13 @@ class sensor:
             # if debug == True:
             #     print("Data to write: ", data)
             fileRW.write("/home/pi/temp_in.csv", data[0])
-            fileRW.write("/home/pi/temp_out.csv", data[1])
+            if num_t_sensor == 2:
+                fileRW.write("/home/pi/temp_out.csv", data[1])
             i += 1
 
     def avrg(self, readfile, writefile, debug=False):
+        if num_t_sensor == 1 and readfile == "temp_out.csv":
+            return None
         times = fileRW.read("/home/pi/" + readfile, 0, debug)
         data = fileRW.read("/home/pi/" + readfile, 2, debug)
         start = times[0]  # 1st time in array
@@ -84,4 +91,3 @@ class sensor:
             print("Average temperature for " + name + " is: ", avrgtemp)
             print("Max temperature for " + name + " is: ", numpy_max)
             print("Conbined data for " + name + " is: ", tup_temp_refined)
-        return tup_temp_refined  # posted to http server

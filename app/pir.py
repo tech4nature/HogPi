@@ -14,4 +14,7 @@ class sensor:
         )  # Set the PIR to pin 8
 
     def read(self):
-        return RPi.GPIO.input(pin)
+        result = RPi.GPIO.input(pin)
+        if result == 1:
+            print('PIR Triggered')
+        return result

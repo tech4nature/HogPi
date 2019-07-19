@@ -1,4 +1,3 @@
-import post
 import video
 import subprocess
 import thermo

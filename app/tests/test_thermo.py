@@ -19,6 +19,7 @@ def test_setup(mock_glob, mock_os):
     # All the other stuff is setup and most of it unecessary globals.
     # We don't bother testing the actual calls; these should really
     # live outside the code anyway.
+    mock_glob.glob.return_value = ['hi']
     sensor()
     mock_os.system.assert_called()
 
