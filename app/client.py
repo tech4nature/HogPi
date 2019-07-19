@@ -4,8 +4,9 @@ from datetime import datetime
 from requests.auth import HTTPBasicAuth
 
 
-HOGHOST = "http://connectionengine.co.uk"
-AUTH = HTTPBasicAuth("tech4nature", "hoggy")
+HOGHOST = "http://trinity-stroud.hedgehogrepublic.org/"
+with open('/home/pi/password.txt', 'r') as f:
+AUTH = HTTPBasicAuth("tech4nature", f.read()[:12])
 
 
 def create_location(code, name):
