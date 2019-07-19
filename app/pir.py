@@ -14,5 +14,4 @@ class sensor:
         )  # Set the PIR to pin 8
 
     def read(self):
-        print(RPi.GPIO.input(pin))
         return RPi.GPIO.input(pin)
