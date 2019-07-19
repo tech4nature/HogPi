@@ -30,7 +30,9 @@ fileRW = output.Output()
 box_id = "box-9082242689124"
 cycle_time = 600
 last_ran = None
-PIZERO_IP = '10.170.1.11'
+PIZERO_IP = '10.170.1.'
+PIZERO_IP_MIN = 11
+PIZERO_IP_MAX = 20
 PIZERO_FTP_USERNAME = 'pi'
 PIZERO_FTP_PASSWORD = 'hog1hog1'
 #  =======================================
@@ -118,7 +120,7 @@ def cleanup():
 #  =======================================
 # Main Loop
 #  =======================================
-def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD):
+def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN, PIZERO_IP_MAX, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD):
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
     if pir_sensor.read() == 1:
@@ -139,7 +141,8 @@ def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_FTP_USERNAME, PIZERO_FT
                 else:  # Runs video
                     print("Running Video")
                     try:
-                        path = Path(__file__).resolve().parent / "video.py"
+                        # path = Path(__file__).resolve().parent/"video.py" Very unstable atm
+                        path = '/home/pi/HogPi/app/video.py'
                         print(path)
                         subprocess.check_output(["python3", str(path)], timeout=120)
                     except subprocess.CalledProcessError as e:
@@ -175,17 +178,18 @@ def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_FTP_USERNAME, PIZERO_FT
     elif last_ran != datetime.now().strftime('%H'):
         print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
-        response = os.system('ping -c 1 ' + PIZERO_IP)
-        if 0 == response:
-            sftp.pull_videos(PIZERO_IP, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
-            to_post = {'weight': False, 'temp': False, 'video': True}
-            post(box_id, 'outside', to_post)
+        for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
+            response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
+            if 0 == response:
+                sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
+                to_post = {'weight': False, 'temp': False, 'video': True}
+                post(box_id, 'outside', to_post)
         return last_ran
 
 
 if __name__ == "__main__":
     while True:
-        result = main(last_ran, box_id, cycle_time, PIZERO_IP,
-                      PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
+        result = main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN,
+                      PIZERO_IP_MAX, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
         if result != None:
             last_ran = result
