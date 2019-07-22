@@ -160,7 +160,7 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(
-        handler=[logging.handlers.RotatingFileHandler(
+        handlers=[logging.handlers.RotatingFileHandler(
             filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5)],
         level=logging.DEBUG,
     )
