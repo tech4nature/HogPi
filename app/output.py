@@ -2,15 +2,18 @@ from csv import writer, reader
 import json
 from ftplib import FTP
 import os
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class Output:
     @staticmethod
-    def write(filename, data, debug=False):
+    def write(filename, data):
         with open(filename, "a") as f:
             data_writer = writer(f)
-            if debug == True:
-                print("Data to write: ", data)
+            logger.debug("Data to write: %s", data)
             data_writer.writerow(data)
 
     @staticmethod
@@ -19,7 +22,7 @@ class Output:
         open(path, "w+")
 
     @staticmethod
-    def read(filename, column, debug=False):
+    def read(filename, column):
         with open(filename, "r") as f:
             data_reader = reader(f, delimiter=",")
             data = []

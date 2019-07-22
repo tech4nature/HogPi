@@ -4,8 +4,12 @@ from datetime import datetime, timedelta
 from output import Output
 import numpy
 import os
+import logging
 
 fileRW = Output()
+
+
+logger = logging.getLogger(__name__)
 
 
 class sensor:
@@ -26,7 +30,7 @@ class sensor:
         if check == False:
             open("/home/pi/tare_weight.csv", "x")  # if not creates file
 
-    def tare_weight(self, decimal_of_max, debug=False):
+    def tare_weight(self, decimal_of_max):
         # checks if weight.csv exists and is non-empty
         if (
             os.path.isfile("/home/pi/weight.csv")
@@ -34,28 +38,26 @@ class sensor:
         ):
             data = fileRW.read("/home/pi/weight.csv", 1)
             a = numpy.array(data).astype(numpy.float)
-            print("this is last value to use as a[-1]", a[-1])
+            logger.debug("this is last value to use as a[-1] %s", a[-1])
             # test if the last value is below 90% retare weight
             if a[-1] > decimal_of_max * numpy.amax(a) and a[-1] > 100:
                 # set flag to allow no tare
                 self.No_Tare = True
-                if debug == True:
-                    print("Set this if you do not want a tare")
+                logger.debug("Set this if you do not want a tare")
         else:
             # set flag to allow tare
             self.No_Tare = False
             # Set this if you WANT a tare
         return
 
-    def get_time(self, debug=False):
+    def get_time(self,):
         d = datetime.now()
         x = d.strftime("%Y %m %d %H %M %S")
-        if debug is True:
-            print("Raw time: ", d)
-            print("Refined time: ", x)
+        logger.debug("Raw time: %s", d)
+        logger.debug("Refined time: %s", x)
         return x
 
-    def read(self, debug=False):
+    def read(self):
         # Gets data off of weight scales
         if self.No_Tare is False:
             # tare weight unless set to true
@@ -70,39 +72,35 @@ class sensor:
         tup_weight = (t, val)
         hx.power_down()
         hx.power_up()
-        if debug is True:
-            print("Time: ", t)
-            print("Data: ", val)
-            print("Combined: ", tup_weight)
+        logger.debug("Data: %s", val)
+        logger.debug("Combined: %s", tup_weight)
         sleep(0.5)
         return tup_weight
 
-    def write(self, filename, iterations=10, debug=False):
+    def write(self, filename, iterations=10):
         i = 0
         while i <= iterations:
-            data = self.read(debug)
-            if debug == True:
-                print("Data to write: ", data)
-            fileRW.write("/home/pi/" + filename, data, debug=False)  # append
+            data = self.read()
+            logger.debug("Data to write: %s", data)
+            fileRW.write("/home/pi/" + filename, data)  # append
             i += 1
-            print("this is the iteration: " + str(i))
+            logger.debug("this is the iteration: %s", i)
 
-    def avrg(self, readfile, writefile, percentage_of_max, debug=False):
+    def avrg(self, readfile, writefile, percentage_of_max):
         # declarations
         sum_count = 0  # declare before sum_count
         valid_number = 0  # decalare before use to avoid negative division
         count = True
         starttime = ""  # declare before use to avoid undeclared error
-        times = fileRW.read("/home/pi/" + readfile, 0, debug)
-        data = fileRW.read("/home/pi/" + readfile, 1, debug)
+        times = fileRW.read("/home/pi/" + readfile, 0)
+        data = fileRW.read("/home/pi/" + readfile, 1)
         start = times[0]  # set to 1st time incase no weight readings
         data_array = numpy.array(data).astype(numpy.float)
         # find the mean
         numpy_average = numpy.average(data_array)  # Complete avarage
         numpy_max = numpy.amax(data_array)  # max value of array
-        if debug == True:
-            print("Average is...", numpy_average)
-            print("Max value is ....", numpy_max)
+        logger.debug("Average is... %s", numpy_average)
+        logger.debug("Max value is .... %s", numpy_max)
         j = 0
         if numpy_max == 0:  # avoids zero division
             numpy_max = 0.1
@@ -113,11 +111,9 @@ class sensor:
                 if count == True:  # need to get index of i then lookup timestamp
                     start = times[j]
                     count = False
-                if debug == True:
-                    print(i)
+                logger.debug(i)
             else:
-                if debug == True:
-                    print("Do not use")
+                logger.debug("Do not use")
             j += 1
         if valid_number == 0:
             # check for zero division
@@ -131,10 +127,9 @@ class sensor:
         fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
         # delete file after use to give clean start for next average
         os.remove("/home/pi/" + readfile)
-        if debug == True:
-            print(sum_count)
-            print(valid_number)
-            print("The real average is: ", sp_average)
-            print("Start time is: ", starttime)
-            print("The combined data is: ", tup_weight_refined)
+        logger.debug(sum_count)
+        logger.debug(valid_number)
+        logger.debug("The real average is: %s", sp_average)
+        logger.debug("Start time is: %s", starttime)
+        logger.debug("The combined data is: %s", tup_weight_refined)
         return tup_weight_refined  # http post this value

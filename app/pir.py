@@ -1,6 +1,10 @@
 # from RPi import GPIO
 import RPi
 import time
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class sensor:
@@ -14,5 +18,5 @@ class sensor:
         )  # Set the PIR to pin 8
 
     def read(self):
-        print(RPi.GPIO.input(pin))
+        logger.debug("Read value %s from pin %s", RPi.GPIO.input(pin), pin)
         return RPi.GPIO.input(pin)
