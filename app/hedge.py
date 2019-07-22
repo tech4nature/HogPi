@@ -147,6 +147,7 @@ def main():
                 to_post[i] = False
 
         post(box_id, rfid_tag, to_post)  # Posts data
+        ftp.post_logs('ftpk@robotacademy.co.uk', 'hedge', '/home/pi/', box_id)
         logger.info("Post Completed")
         cleanup()
         #  =======================================
