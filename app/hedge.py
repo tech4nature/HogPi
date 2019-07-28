@@ -16,6 +16,7 @@ import glob
 import os
 import pysftp
 import subprocess
+import tzlocal
 from datetime import datetime
 from pathlib import Path
 
@@ -93,6 +94,7 @@ def post(box_id, hog_id, to_post):
         for file in files[0]:
             strtime = file.split("_")[0]
             time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
+            time = time.replace(tzinfo=tzlocal.get_localzone())
             try:
                 client.upload_video(
                     box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
@@ -160,8 +162,11 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(
-        handlers=[logging.handlers.RotatingFileHandler(
-            filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5)],
+        handlers=[
+            logging.handlers.RotatingFileHandler(
+                filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5
+            )
+        ],
         level=logging.DEBUG,
     )
     while True:
