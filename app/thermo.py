@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from datetime import timezone
 from time import sleep, strftime
 from output import Output
 import numpy
@@ -33,7 +34,7 @@ class sensor:
         temp_sensors = [temp_in, temp_out]
 
     def get_time(self):
-        d = datetime.now()
+        d = datetime.now(timezone.utc)
         x = d.strftime("%Y %m %d %H %M %S")
         logger.debug("Raw time: %s", d)
         logger.debug("Refined time: %s", x)
