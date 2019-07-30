@@ -29,6 +29,7 @@ class sensor:
         a = ser.read_until(size=19).decode(
             "utf-8"
         )  # 16 byte tag + \r + \n somehow is 19 not 18
+        print(a)
         if len(a) < 16:
             return "TagNotPresent"
         else:

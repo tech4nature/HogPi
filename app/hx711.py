@@ -57,6 +57,7 @@ class HX711:
 
     def read(self):
         while not self.is_ready():
+            # #print("WAITING")
             pass
 
         dataBits = [self.createBoolList(), self.createBoolList(), self.createBoolList()]
@@ -136,19 +137,23 @@ class HX711:
         with open("/home/pi/tare_weight.csv", "w+") as f:
             # write using the csv object change from float to string
             f.write(str(self.OFFSET))
+            # print("complete writing self.OFFSET")
         return
 
     def store_offset_read(self):
         with open("/home/pi/tare_weight.csv", "r") as r_csvfile:
             mylist = [row[0] for row in reader(r_csvfile, delimiter=";")]
+            # print(mylist)
             store_offset = float(mylist[0])
         return store_offset
 
     def get_value(self, times=3):
+        # print("reading get values")
         self.store_offset()
         return self.read_average(times) - self.OFFSET
 
     def get_value_no_tare(self, times=3):
+        # print("get_value_no_tare")
         return self.read_average(times) - self.store_offset_read()
 
     def get_weight(self, times=3):

@@ -1,8 +1,18 @@
+
 import pir
 import subprocess
+from datetime import datetime
+import led
 
-pir_sensor = pir.sensor(14)
+pir_sensor = pir.sensor(4)
+irled = led.sensor(3)  # Instantiate led class and assign the pin the BCM3
+irled.off()  # Turn led off
+
 
 while True:
-    # if pir_sensor == 1:
-    subprocess.run(["python3", "video.py"])
+    hour = int(datetime.strftime(datetime.now(), '%H'))
+    if hour >= 22  and hour <= 6:
+        if pir_sensor.read() == 1:
+            irled.on()
+            subprocess.run(["python3", "video.py"])
+            irled.off()

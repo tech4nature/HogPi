@@ -1,15 +1,12 @@
-import logging
 import json
 import requests
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
 
 
-HOGHOST = "http://connectionengine.co.uk"
-AUTH = HTTPBasicAuth("tech4nature", "hoggy")
-
-
-logger = logging.getLogger(__name__)
+HOGHOST = "http://trinity-stroud.hedgehogrepublic.org"
+with open('/home/pi/password.txt', 'r') as f:
+    AUTH = HTTPBasicAuth("tech4nature", f.read()[:12])
 
 
 def create_location(code, name):
@@ -49,7 +46,7 @@ def create_outside_temp(location_id, temp, time):
 
 def upload_video(location_id, hog_id, video_path, time):
     measurement = _create_measurement(location_id, "video", time, hog_id=hog_id)
-    logger.info(measurement)
+    print(measurement)
     measurement_id = measurement["id"]
     files = {"video": open(video_path, "rb")}
     url = HOGHOST + "/api/measurements/{}/video/".format(measurement_id)
