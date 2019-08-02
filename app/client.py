@@ -50,7 +50,9 @@ def upload_video(location_id, hog_id, video_path, time):
     measurement_id = measurement["id"]
     files = {"video": open(video_path, "rb")}
     url = HOGHOST + "/api/measurements/{}/video/".format(measurement_id)
-    return requests.put(url, files=files, auth=AUTH).json()
+    response =  requests.put(url, files=files, auth=AUTH)
+    response.raise_for_status()
+    print(response.text)
 
 
 if __name__ == "__main__":

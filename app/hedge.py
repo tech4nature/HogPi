@@ -58,6 +58,7 @@ def read_and_average(measurement_type):
 
 
 def post(box_id, hog_id, to_post):
+    print('Post is running')
     if to_post["weight"] == True:
         weight = fileRW.read("/home/pi/avrgweight.csv", 2)
         times = fileRW.read("/home/pi/avrgweight.csv", 1)
@@ -92,19 +93,21 @@ def post(box_id, hog_id, to_post):
 
         except requests.exceptions.HTTPError as e:
              print(getattr(e, "message ", repr(e)))
-        if to_post["video"] == True:
-            os.chdir("/home/pi/Videos")
-            files = [glob.glob(e) for e in ["*.mp4"]]
-            for file in files[0]:
-                strtime = file.split("_")[0]
-                time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
-                try:
-                    client.upload_video(
-                        box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
-                        )
-                    os.remove("/home/pi/Videos/" + file)
-                except requests.exceptions.HTTPError as e:
-                    print(getattr(e, "message ", repr(e)))
+    if to_post["video"] == True:
+        print('Video is running wooooooo')
+        os.chdir("/home/pi/Videos")
+        files = [glob.glob(e) for e in ["*.mp4"]]
+        for file in files[0]:
+            strtime = file.split("_")[0]
+            time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
+            try:
+                print('Video try with file: ' + file)
+                client.upload_video(
+                    box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
+                    )
+                os.remove("/home/pi/Videos/" + file)
+            except requests.exceptions.HTTPError as e:
+                print(getattr(e, "message ", repr(e)))
 def cleanup():
     files_grabbed = [glob.glob(e) for e in ["/home/pi/*.csv"]]
     print(files_grabbed) # debuging

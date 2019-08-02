@@ -97,6 +97,8 @@ if __name__ == "__main__":
             "libx264",
             "-preset",
             "ultrafast",
+            "-b:v",
+            "1600k",
             "-r",
             "25",
             "-an",
@@ -107,8 +109,8 @@ if __name__ == "__main__":
     ffmpeg3.wait()
 
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
-    if ffmpeg3.returncode == 0:
-        os.remove(of1)
+    #if ffmpeg3.returncode == 0:
+        # os.remove(of1)
         # os.remove("/home/pi/jackTest/audio")
 
     sys.exit()
