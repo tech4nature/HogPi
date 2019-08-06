@@ -10,9 +10,9 @@ irled.off()  # Turn led off
 
 
 while True:
-#    hour = int(datetime.strftime(datetime.now(), '%H'))
-#    if hour >= 22  and hour <= 6:
-     if pir_sensor.read() == 1:
+    #    hour = int(datetime.strftime(datetime.now(), '%H'))
+    #    if hour >= 22  or hour <= 6:
+    if pir_sensor.read() == 1:
         print("PIR triggered")
         irled.on()
         subprocess.run(["python3", "video.py"])

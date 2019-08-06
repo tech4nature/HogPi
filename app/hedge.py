@@ -58,7 +58,6 @@ def read_and_average(measurement_type):
 
 
 def post(box_id, hog_id, to_post):
-    print('Post is running')
     if to_post["weight"] == True:
         weight = fileRW.read("/home/pi/avrgweight.csv", 2)
         times = fileRW.read("/home/pi/avrgweight.csv", 1)
@@ -92,30 +91,31 @@ def post(box_id, hog_id, to_post):
                 fileRW.clear_data("/home/pi/avrgtemp_out.csv")
 
         except requests.exceptions.HTTPError as e:
-             print(getattr(e, "message ", repr(e)))
+            print(getattr(e, "message ", repr(e)))
     if to_post["video"] == True:
-        print('Video is running wooooooo')
         os.chdir("/home/pi/Videos")
         files = [glob.glob(e) for e in ["*.mp4"]]
         for file in files[0]:
-            strtime = file.split("_")[0]
-            time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
-            try:
-                print('Video try with file: ' + file)
-                client.upload_video(
-                    box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
+            if file != '1stPass.mp4':
+                strtime = file.split("_")[0]
+                time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
+                try:
+                    client.upload_video(
+                        box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
                     )
-                os.remove("/home/pi/Videos/" + file)
-            except requests.exceptions.HTTPError as e:
-                print(getattr(e, "message ", repr(e)))
+                    os.remove("/home/pi/Videos/" + file)
+                except requests.exceptions.HTTPError as e:
+                    print(getattr(e, "message ", repr(e)))
+
+
 def cleanup():
     files_grabbed = [glob.glob(e) for e in ["/home/pi/*.csv"]]
-    print(files_grabbed) # debuging
+    print(files_grabbed)  # debuging
     for file in files_grabbed[0]:
         if "avrg" in file:
             pass
         else:
-            print(fileRW.clear_data(file)) #debuging
+            print(fileRW.clear_data(file))  # debuging
 
 
 #  =======================================
@@ -124,7 +124,7 @@ def cleanup():
 def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN, PIZERO_IP_MAX, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD):
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 0:# commissioning change
+    if pir_sensor.read() == 0:  # commissioning change
         print("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
@@ -147,21 +147,20 @@ def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN, PIZERO_IP_MAX, 
                         print(path)
                         subprocess.check_output(["python3", str(path)], timeout=120)
                     except subprocess.CalledProcessError as e:
-                        print (
+                        print(
                             "An error has occured, "
                             + i
                             + " will not be posted because"
-                            + getattr(e, "message "  , repr(e)))
+                            + getattr(e, "message ", repr(e)))
                         to_post["video"] = False
 
             except Exception as e:
-                print (
+                print(
                     "An error has occured, "
                     + i
                     + " will not be posted because"
-                    + getattr(e, "message "  , repr(e)))
+                    + getattr(e, "message ", repr(e)))
                 to_post[i] = False
-
 
         post(box_id, rfid_tag, to_post)  # Posts data
         print("Post Completed")
@@ -184,6 +183,8 @@ def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN, PIZERO_IP_MAX, 
                 sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
                 to_post = {'weight': False, 'temp': False, 'video': True}
                 post(box_id, 'outside', to_post)
+        # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
+        # weight_sensor.tare_weight()  # Commented because awaiting function refactor
         return last_ran
 
 
