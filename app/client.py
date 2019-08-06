@@ -4,9 +4,9 @@ from datetime import datetime
 from requests.auth import HTTPBasicAuth
 
 
-HOGHOST = "http://trinity-stroud.hedgehogrepublic.org/"
+HOGHOST = "http://trinity-stroud.hedgehogrepublic.org"
 with open('/home/pi/password.txt', 'r') as f:
-AUTH = HTTPBasicAuth("tech4nature", f.read()[:12])
+    AUTH = HTTPBasicAuth("tech4nature", f.read()[:12])
 
 
 def create_location(code, name):
@@ -50,7 +50,9 @@ def upload_video(location_id, hog_id, video_path, time):
     measurement_id = measurement["id"]
     files = {"video": open(video_path, "rb")}
     url = HOGHOST + "/api/measurements/{}/video/".format(measurement_id)
-    return requests.put(url, files=files, auth=AUTH).json()
+    response =  requests.put(url, files=files, auth=AUTH)
+    response.raise_for_status()
+    print(response.text)
 
 
 if __name__ == "__main__":

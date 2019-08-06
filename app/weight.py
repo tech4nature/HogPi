@@ -15,7 +15,7 @@ class sensor:
         self.No_Tare = False
         hx = HX711(5, 6)
         hx.set_reading_format("LSB", "MSB")
-        hx.set_reference_unit(580)  # 391
+        hx.set_reference_unit(451)  # calibrated on 1000g
         hx.reset()
         hx.tare()
 
@@ -87,7 +87,7 @@ class sensor:
             i += 1
             print("this is the iteration: " + str(i))
 
-    def avrg(self, readfile, writefile, percentage_of_max, debug=False):
+    def avrg(self, readfile, writefile,debug=False):
         # declarations
         sum_count = 0  # declare before sum_count
         valid_number = 0  # decalare before use to avoid negative division
@@ -98,16 +98,16 @@ class sensor:
         start = times[0]  # set to 1st time incase no weight readings
         data_array = numpy.array(data).astype(numpy.float)
         # find the mean
-        numpy_average = numpy.average(data_array)  # Complete avarage
-        numpy_max = numpy.amax(data_array)  # max value of array
+        numpy_average = numpy.median(data_array)  # Complete avarage
+        Q1 = numpy.percentile(data_array, 25, interpolation = 'midpoint') # quarter at 25%
+        Q3 = numpy.percentile(data_array, 75, interpolation = 'midpoint')
         if debug == True:
-            print("Average is...", numpy_average)
-            print("Max value is ....", numpy_max)
+            print("Median is...", numpy_average)
+            print("Q1 value is ....", Q1)
+            print("Q3 value is ....", Q3)
         j = 0
-        if numpy_max == 0:  # avoids zero division
-            numpy_max = 0.1
         for i in numpy.nditer(data_array):  # why data array when data is list ??
-            if (i / numpy_max) > percentage_of_max:  # only those close to max
+            if i > Q1 and i < Q3 :  # Only use values in IQR
                 sum_count = sum_count + i  # count the sum
                 valid_number = valid_number + 1  # count the number
                 if count == True:  # need to get index of i then lookup timestamp

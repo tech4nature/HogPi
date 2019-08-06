@@ -15,6 +15,6 @@ class sensor:
 
     def read(self):
         result = RPi.GPIO.input(pin)
-        if result == 1:
+        if result == 0:# commissioning change
             print('PIR Triggered')
         return result
