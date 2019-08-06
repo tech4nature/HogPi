@@ -1,6 +1,10 @@
 # from RPi import GPIO
 import RPi
 import time
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class sensor:
@@ -15,6 +19,7 @@ class sensor:
 
     def read(self):
         result = RPi.GPIO.input(pin)
-        if result == 0:# commissioning change
-            print('PIR Triggered')
+        logger.debug("Read value %s from pin %s", result, pin)
+	if result == 0:
+            logger.info("PIR Triggered")
         return result

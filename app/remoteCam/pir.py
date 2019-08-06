@@ -1,4 +1,3 @@
-# from RPi import GPIO
 import RPi.GPIO as GPIO
 import time
 
@@ -9,10 +8,8 @@ class sensor:
         pin = pin_num
         time.sleep(2)  # set up of PIR reader
         GPIO.setmode(GPIO.BCM)  # set mode
-        GPIO.setup(
-            pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN
-        )  # Set the PIR to pin 8
+        GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # Set the PIR to pin 8
 
     def read(self):
-        # print(GPIO.input(pin))
+        logger.debug("Read value %s from pin %s", RPi.GPIO.input(pin), pin)
         return GPIO.input(pin)

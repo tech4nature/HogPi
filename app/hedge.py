@@ -4,6 +4,8 @@
 
 import weight
 import pir
+import logging
+import logging.handlers
 import time
 import rfid
 import thermo
@@ -17,7 +19,8 @@ import subprocess
 import sftp
 from datetime import datetime
 from pathlib import Path
-import requests.exceptions
+
+
 #  =======================================
 # Object settings
 #  =======================================
@@ -27,7 +30,7 @@ fileRW = output.Output()
 #  =======================================
 # Variable settings
 #  =======================================
-box_id = "box-7373203790301"
+box_id = "box-9082242689124"
 cycle_time = 600
 last_ran = None
 PIZERO_IP = '10.170.1.'
@@ -39,22 +42,20 @@ PIZERO_FTP_PASSWORD = 'hog1hog1'
 # Define functions
 #  =======================================
 
+logger = logging.getLogger(__name__)
+
 
 def read_and_average(measurement_type):
     if measurement_type == "weight":
         weight_sensor = weight.sensor()
-        weight_sensor.write("weight.csv", debug=True, iterations=10)  # Read Weight
-        weight_sensor.avrg("weight.csv", "avrgweight.csv", True)  # Average Weight
+        weight_sensor.write("weight.csv", iterations=10)  # Read Weight
+        weight_sensor.avrg("weight.csv", "avrgweight.csv", 0.95)  # Average Weight
 
     elif measurement_type == "temp":
         thermo_sensor = thermo.sensor()
-        thermo_sensor.write(debug=True, iterations=10)  # Read Temperature
-        thermo_sensor.avrg(
-            "temp_in.csv", "avrgtemp_in.csv", True
-        )  # Average Temperature
-        thermo_sensor.avrg(
-            "temp_out.csv", "avrgtemp_out.csv", True
-        )  # Average Temperature
+        thermo_sensor.write(iterations=10)  # Read Temperature
+        thermo_sensor.avrg("temp_in.csv", "avrgtemp_in.csv")  # Average Temperature
+        thermo_sensor.avrg("temp_out.csv", "avrgtemp_out.csv")  # Average Temperature
 
 
 def post(box_id, hog_id, to_post):
@@ -71,7 +72,7 @@ def post(box_id, hog_id, to_post):
                     client.create_weight(box_id, "hog-" + hog_id, weight[i], time)
                     fileRW.clear_data("/home/pi/avrgweight.csv")
                 except requests.exceptions.HTTPError as e:
-                    print(getattr(e, "message ", repr(e)))
+                    logger.exception("Problem posting weight from %s", box_id)
 
     if to_post["temp"] == True:
         temps_in = fileRW.read("/home/pi/avrgtemp_in.csv", 1)
@@ -91,12 +92,13 @@ def post(box_id, hog_id, to_post):
                 fileRW.clear_data("/home/pi/avrgtemp_out.csv")
 
         except requests.exceptions.HTTPError as e:
-            print(getattr(e, "message ", repr(e)))
+            logger.exception("Problem posting temp from %s", box_id)
+
     if to_post["video"] == True:
         os.chdir("/home/pi/Videos")
         files = [glob.glob(e) for e in ["*.mp4"]]
         for file in files[0]:
-            if file != '1stPass.mp4':
+	    if file != '1stPass.mp4':
                 strtime = file.split("_")[0]
                 time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
                 try:
@@ -105,27 +107,27 @@ def post(box_id, hog_id, to_post):
                     )
                     os.remove("/home/pi/Videos/" + file)
                 except requests.exceptions.HTTPError as e:
-                    print(getattr(e, "message ", repr(e)))
+                    logger.exception("Problem posting video from %s", box_id)
 
 
 def cleanup():
     files_grabbed = [glob.glob(e) for e in ["/home/pi/*.csv"]]
-    print(files_grabbed)  # debuging
     for file in files_grabbed[0]:
         if "avrg" in file:
             pass
         else:
-            print(fileRW.clear_data(file))  # debuging
+            fileRW.clear_data(file)
 
 
 #  =======================================
 # Main Loop
 #  =======================================
-def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN, PIZERO_IP_MAX, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD):
+def main():
+    logger.info("Main loop heartbeat")
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 0:  # commissioning change
-        print("Started")
+    if pir_sensor.read() == 0:
+        logger.info("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
         # Weight, Temp and Video
@@ -140,30 +142,20 @@ def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN, PIZERO_IP_MAX, 
                     # We terminate the process.
                     process.terminate()
                 else:  # Runs video
-                    print("Running Video")
+                    logger.info("Running Video")
                     try:
-                        # path = Path(__file__).resolve().parent/"video.py" Very unstable atm
                         path = '/home/pi/HogPi/app/video.py'
-                        print(path)
-                        subprocess.check_output(["python3", str(path)], timeout=120)
+                        subprocess.check_output(["python3", path], timeout=120)
                     except subprocess.CalledProcessError as e:
-                        print(
-                            "An error has occured, "
-                            + i
-                            + " will not be posted because"
-                            + getattr(e, "message ", repr(e)))
+                        logger.exception("%s cannot be posted", i)
                         to_post["video"] = False
 
             except Exception as e:
-                print(
-                    "An error has occured, "
-                    + i
-                    + " will not be posted because"
-                    + getattr(e, "message ", repr(e)))
+                logger.exception("An error has occurred")
                 to_post[i] = False
 
         post(box_id, rfid_tag, to_post)  # Posts data
-        print("Post Completed")
+        logger.info("Post Completed")
         cleanup()
         #  =======================================
         # 10 Minute Check
@@ -189,8 +181,10 @@ def main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN, PIZERO_IP_MAX, 
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        handlers=[logging.handlers.RotatingFileHandler(
+            filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5)],
+        level=logging.DEBUG,
+    )
     while True:
-        result = main(last_ran, box_id, cycle_time, PIZERO_IP, PIZERO_IP_MIN,
-                      PIZERO_IP_MAX, PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
-        if result != None:
-            last_ran = result
+        main()

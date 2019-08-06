@@ -1,4 +1,4 @@
-
+import post
 import video
 import subprocess
 import thermo
@@ -12,9 +12,9 @@ def main_menu():
 
     if x == "t":
         temperature = thermo.sensor()
-        temperature.write(iterations=10, debug=True)
-        temperature.avrg("temp_in.csv", "avrtempin.csv", debug=True)
-        temperature.avrg("temp_out.csv", "avrtempout.csv", debug=True)
+        temperature.write(time=10)
+        temperature.avrg("temp_in.csv", "avrtempin.csv")
+        temperature.avrg("temp_out.csv", "avrtempout.csv")
         main_menu()
 
     elif x == "v":
@@ -28,13 +28,8 @@ def main_menu():
         weight_sensor.tare_weight(0.5)
         weight_sensor.read(True)
         weight_sensor.write("weight.csv", 30, True)
-        weight_sensor.avrg("weight.csv", "avrweight.csv", True)  # -1 use all values
+        weight_sensor.avrg("weight.csv", "avrweight.csv", -1)  # -1 use all values
         # weight_sensor.tare_weight(100)  # 100 = min tolerance
-        main_menu()
-
-    elif x == "r":
-        rfid_sensor = rfid.sensor()
-        rfid_sensor.read()
         main_menu()
 
     elif x == "p":
