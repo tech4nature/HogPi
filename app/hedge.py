@@ -71,7 +71,7 @@ def post(box_id, hog_id, to_post):
                 try:
                     client.create_weight(box_id, "hog-" + hog_id, weight[i], time)
                     fileRW.clear_data("/home/pi/avrgweight.csv")
-                except requests.exceptions.HTTPError as e:
+                except [requests.exceptions.HTTPError, JSONError] as e:
                     logger.exception("Problem posting weight from %s", box_id)
 
     if to_post["temp"] == True:
@@ -91,7 +91,7 @@ def post(box_id, hog_id, to_post):
                 fileRW.clear_data("/home/pi/avrgtemp_in.csv")
                 fileRW.clear_data("/home/pi/avrgtemp_out.csv")
 
-        except requests.exceptions.HTTPError as e:
+        except [requests.exceptions.HTTPError, JSONError] as e:
             logger.exception("Problem posting temp from %s", box_id)
 
     if to_post["video"] == True:
@@ -106,7 +106,7 @@ def post(box_id, hog_id, to_post):
                         box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
                     )
                     os.remove("/home/pi/Videos/" + file)
-                except requests.exceptions.HTTPError as e:
+                except [requests.exceptions.HTTPError, JSONError] as e:
                     logger.exception("Problem posting video from %s", box_id)
 
 
