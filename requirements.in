@@ -5,3 +5,4 @@ numpy
 pyserial
 requests
 pytest-cov
+gpiozero
