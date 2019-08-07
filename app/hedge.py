@@ -16,6 +16,7 @@ import glob
 import os
 import pysftp
 import subprocess
+import sftp
 from datetime import datetime
 from pathlib import Path
 
@@ -31,6 +32,12 @@ fileRW = output.Output()
 #  =======================================
 box_id = "box-9082242689124"
 cycle_time = 600
+last_ran = None
+PIZERO_IP = '10.170.1.'
+PIZERO_IP_MIN = 11
+PIZERO_IP_MAX = 20
+PIZERO_FTP_USERNAME = 'pi'
+PIZERO_FTP_PASSWORD = 'hog1hog1'
 #  =======================================
 # Define functions
 #  =======================================
@@ -91,15 +98,16 @@ def post(box_id, hog_id, to_post):
         os.chdir("/home/pi/Videos")
         files = [glob.glob(e) for e in ["*.mp4"]]
         for file in files[0]:
-            strtime = file.split("_")[0]
-            time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
-            try:
-                client.upload_video(
-                    box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
-                )
-                os.remove("/home/pi/Videos/" + file)
-            except requests.exceptions.HTTPError as e:
-                logger.exception("Problem posting video from %s", box_id)
+	    if file != '1stPass.mp4':
+                strtime = file.split("_")[0]
+                time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
+                try:
+                    client.upload_video(
+                        box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
+                    )
+                    os.remove("/home/pi/Videos/" + file)
+                except requests.exceptions.HTTPError as e:
+                    logger.exception("Problem posting video from %s", box_id)
 
 
 def cleanup():
@@ -108,7 +116,7 @@ def cleanup():
         if "avrg" in file:
             pass
         else:
-            fileRW.clear_data("/home/pi/" + file)
+            fileRW.clear_data(file)
 
 
 #  =======================================
@@ -118,7 +126,7 @@ def main():
     logger.info("Main loop heartbeat")
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 1:
+    if pir_sensor.read() == 0:
         logger.info("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
@@ -136,7 +144,7 @@ def main():
                 else:  # Runs video
                     logger.info("Running Video")
                     try:
-                        path = Path(__file__).resolve().parents / "video.py"
+                        path = '/home/pi/HogPi/app/video.py'
                         subprocess.check_output(["python3", path], timeout=120)
                     except subprocess.CalledProcessError as e:
                         logger.exception("%s cannot be posted", i)
@@ -156,6 +164,20 @@ def main():
         time_taken = end_time - start_time
         if time_taken < cycle_time:
             time.sleep(cycle_time - time_taken)
+        return None
+
+    elif last_ran != datetime.now().strftime('%H'):
+        print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
+        last_ran = datetime.now().strftime('%H')
+        for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
+            response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
+            if 0 == response:
+                sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
+                to_post = {'weight': False, 'temp': False, 'video': True}
+                post(box_id, 'outside', to_post)
+        # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
+        # weight_sensor.tare_weight()  # Commented because awaiting function refactor
+        return last_ran
 
 
 if __name__ == "__main__":

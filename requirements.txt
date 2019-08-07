@@ -11,8 +11,10 @@ bcrypt==3.1.6             # via paramiko
 certifi==2019.3.9         # via requests
 cffi==1.12.3              # via bcrypt, cryptography, pynacl
 chardet==3.0.4            # via requests
+colorzero==1.1            # via gpiozero
 coverage==4.5.3           # via pytest-cov
 cryptography==2.7         # via paramiko
+gpiozero==1.5.1
 idna==2.8                 # via requests
 importlib-metadata==0.17  # via pluggy, pytest
 more-itertools==7.0.0     # via pytest

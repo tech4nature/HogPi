@@ -19,6 +19,7 @@ def test_setup(mock_glob, mock_os):
     # All the other stuff is setup and most of it unecessary globals.
     # We don't bother testing the actual calls; these should really
     # live outside the code anyway.
+    mock_glob.glob.return_value = ['hi']
     sensor()
     mock_os.system.assert_called()
 
@@ -58,8 +59,8 @@ def test_read(mock_datetime, mock_glob, mock_os):
     # Note that the order is reversed because they are returned in the
     # order of the `temp_sensors` list
     assert result == [
-        ("2000 01 01 00 00 00", sensor_2_name, 22.768),
         ("2000 01 01 00 00 00", sensor_1_name, 32.768),
+        ("2000 01 01 00 00 00", sensor_2_name, 22.768),
     ]
 
 

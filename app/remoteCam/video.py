@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    irled = led.sensor(17)  # Instantiate led class and assign the pin the BCM17
+#    irled = led.sensor(3)  # Instantiate led class and assign the pin the BCM3
 
     of = "/home/pi/Videos/"  # output folder
     of1 = of + "1stPASS.mp4"
     rectime = "10"  # record time of 10s
 
     # ffmpeg 1st Pass record
-    irled.on()  # Turn led on
+ #   irled.on()  # Turn led on
 
     # removed all audio from this files
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         ]
     )
     ffmpeg1.wait()
-    irled.off()  # Turn led off
+  #  irled.off()  # Turn led off
 
     # ffprobe to extract recording time and date and turn into offset seconds
     command = [
@@ -99,6 +99,8 @@ if __name__ == "__main__":
             "libx264",
             "-preset",
             "ultrafast",
+            "-b:v",
+            "1600k",
             "-r",
             "25",
             "-an",
@@ -109,8 +111,8 @@ if __name__ == "__main__":
     ffmpeg3.wait()
 
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
-    if ffmpeg3.returncode == 0:
-        os.remove(of1)
+    #if ffmpeg3.returncode == 0:
+        # os.remove(of1)
         # os.remove("/home/pi/jackTest/audio")
 
     sys.exit()

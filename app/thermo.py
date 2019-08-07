@@ -19,18 +19,15 @@ class sensor:
         os.system("modprobe w1-therm")
 
         global base_dir
-        global device_folder1
-        global device_folder2
-        global temp_out
-        global temp_in
         global temp_sensors
-
+        global num_t_sensor
+        temp_sensors = []
         base_dir = "/sys/bus/w1/devices/"
-        device_folder1 = glob.glob(base_dir + "28*")[0]
-        device_folder2 = glob.glob(base_dir + "28*")[1]
-        temp_out = device_folder1 + "/w1_slave"
-        temp_in = device_folder2 + "/w1_slave"
-        temp_sensors = [temp_in, temp_out]
+        for i in glob.glob(base_dir + "28*"):
+            temp_sensors.append(i + "/w1_slave")
+        num_t_sensor = len(temp_sensors)
+        if num_t_sensor == 0:
+            raise Exception
 
     def get_time(self):
         d = datetime.now()
@@ -71,10 +68,13 @@ class sensor:
         while i <= iterations / 2:  # iterations halved because of the 2 sensors
             data = self.read()
             fileRW.write("/home/pi/temp_in.csv", data[0])
-            fileRW.write("/home/pi/temp_out.csv", data[1])
+            if num_t_sensor == 2:
+                fileRW.write("/home/pi/temp_out.csv", data[1])
             i += 1
 
     def avrg(self, readfile, writefile):
+        if num_t_sensor == 1 and readfile == "temp_out.csv":
+            return None
         times = fileRW.read("/home/pi/" + readfile, 0)
         data = fileRW.read("/home/pi/" + readfile, 2)
         start = times[0]  # 1st time in array
