@@ -1,7 +1,7 @@
 #  =======================================
 # Import Statements
 #  =======================================
-
+import ftp
 import weight
 import pir
 import logging
@@ -177,6 +177,11 @@ def main():
                 post(box_id, 'outside', to_post)
         # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
         # weight_sensor.tare_weight()  # Commented because awaiting function refactor
+        os.chdir("/home/pi/")
+        files = [glob.glob(e) for e in ["*.log"]]
+        for file in files[0]:
+            filename = box_id + datetime.now().strftime('Y-%m-%d-%H-%M-%S')
+            ftp.ftp_post(filename, file, 'ftpk@robotacademy.co.uk', 'Angelgabe23', '91.208.99.4')
         return last_ran
 
 
