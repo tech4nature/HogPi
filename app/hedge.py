@@ -49,7 +49,7 @@ def read_and_average(measurement_type):
     if measurement_type == "weight":
         weight_sensor = weight.sensor()
         weight_sensor.write("weight.csv", iterations=10)  # Read Weight
-        weight_sensor.avrg("weight.csv", "avrgweight.csv", 0.95)  # Average Weight
+        weight_sensor.avrg("weight.csv", "avrgweight.csv")  # Average Weight
 
     elif measurement_type == "temp":
         thermo_sensor = thermo.sensor()
@@ -126,7 +126,7 @@ def main():
     logger.info("Main loop heartbeat")
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 0:
+    if pir_sensor.read() == 1:
         logger.info("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
@@ -165,18 +165,22 @@ def main():
         if time_taken < cycle_time:
             time.sleep(cycle_time - time_taken)
         return None
-
+        #  =======================================
+        # 1 Hour routines
+        # ======================================
     elif last_ran != datetime.now().strftime('%H'):
         print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
+        # ========= sftp pizero videos ==========
         for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
             response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
             if 0 == response:
                 sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
                 to_post = {'weight': False, 'temp': False, 'video': True}
                 post(box_id, 'outside', to_post)
-        # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
-        # weight_sensor.tare_weight()  # Commented because awaiting function refactor
+        # ========== Store Tare Weight ==========
+        weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
+        weight_sensor.tare_weight()  # writes the tare to stored file
         return last_ran
 
 
