@@ -133,13 +133,13 @@ class HX711:
         return values / times
 
     def store_offset(self):
-        with open("/home/pi/tare_weight.csv", "w+") as f:
+        with open("/home/pi/HogPi/app/tare_weight.csv", "w+") as f:#changed to new dir
             # write using the csv object change from float to string
             f.write(str(self.OFFSET))
         return
 
     def store_offset_read(self):
-        with open("/home/pi/tare_weight.csv", "r") as r_csvfile:
+        with open("/home/pi/HogPi/app/tare_weight.csv", "r") as r_csvfile:# chnaged to new dir
             mylist = [row[0] for row in reader(r_csvfile, delimiter=";")]
             store_offset = float(mylist[0])
         return store_offset
