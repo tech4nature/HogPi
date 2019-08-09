@@ -25,10 +25,10 @@ def main_menu():
 
     elif x == "w":
         weight_sensor = weight.sensor()
-        weight_sensor.tare_weight(0.5)
-        weight_sensor.read(True)
-        weight_sensor.write("weight.csv", 30, True)
-        weight_sensor.avrg("weight.csv", "avrweight.csv", -1)  # -1 use all values
+        weight_sensor.tare_weight()
+        weight_sensor.read()
+        weight_sensor.write("weight.csv", 30)
+        weight_sensor.avrg("weight.csv", "avrweight.csv")  # -1 use all values
         # weight_sensor.tare_weight(100)  # 100 = min tolerance
         main_menu()
 
