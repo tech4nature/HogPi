@@ -182,7 +182,7 @@ def main(last_ran):
         os.chdir("/home/pi/HogPi/app")
         files = [glob.glob(e) for e in ["*.log"]]
         for file in files[0]:
-            filename = box_id + datetime.now().strftime('Y-%m-%d-%H-%M-%S')
+            filename = box_id + datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
             ftp.ftp_post(filename, file, 'ftpk@robotacademy.co.uk', 'Angelgabe23', '91.208.99.4')
         return last_ran
 
