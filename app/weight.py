@@ -27,27 +27,9 @@ class sensor:
         if check == False:
             open("/home/pi/weight.csv", "x")  # if not creates file
         check = os.path.isfile("/home/pi/tare_weight.csv")  # checks if file exists
-        if check == False:
-            open("/home/pi/tare_weight.csv", "x")  # if not creates file
-
-    def tare_weight(self, decimal_of_max):
-        # checks if weight.csv exists and is non-empty
-        if (
-            os.path.isfile("/home/pi/weight.csv")
-            and os.path.getsize("/home/pi/weight.csv") > 0
-        ):
-            data = fileRW.read("/home/pi/weight.csv", 1)
-            a = numpy.array(data).astype(numpy.float)
-            logger.debug("this is last value to use as a[-1] %s", a[-1])
-            # test if the last value is below 90% retare weight
-            if a[-1] > decimal_of_max * numpy.amax(a) and a[-1] > 100:
-                # set flag to allow no tare
-                self.No_Tare = True
-                logger.debug("Set this if you do not want a tare")
-        else:
-            # set flag to allow tare
-            self.No_Tare = False
-            # Set this if you WANT a tare
+        # removed file checking as w+ method creates
+    def tare_weight(self):
+        hx.store_offset() # store the offset in a file
         return
 
     def get_time(self):
@@ -58,17 +40,11 @@ class sensor:
         return x
 
     def read(self):
-        # Gets data off of weight scales
-        if self.No_Tare is False:
-            # tare weight unless set to true
-            val = hx.get_weight(5)
-        else:
-            # Do not tare weight but use stored value
-            val = hx.get_weight_no_tare(5)
+        val = hx.get_weight_no_tare(5) # use stored data
         # reslove zero values for negatives
         if val < 0:
             val = 0
-        t = self.get_time(False)
+        t = self.get_time()# false removed no debugging
         tup_weight = (t, val)
         hx.power_down()
         hx.power_up()
