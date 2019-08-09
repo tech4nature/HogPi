@@ -1,7 +1,7 @@
 #  =======================================
 # Import Statements
 #  =======================================
-
+import ftp
 import weight
 import pir
 import logging
@@ -19,8 +19,6 @@ import subprocess
 import sftp
 from datetime import datetime
 from pathlib import Path
-import requests
-from requests.exceptions import HTTPError
 
 
 #  =======================================
@@ -40,7 +38,6 @@ PIZERO_IP_MIN = 11
 PIZERO_IP_MAX = 20
 PIZERO_FTP_USERNAME = 'pi'
 PIZERO_FTP_PASSWORD = 'hog1hog1'
-
 #  =======================================
 # Define functions
 #  =======================================
@@ -52,7 +49,7 @@ def read_and_average(measurement_type):
     if measurement_type == "weight":
         weight_sensor = weight.sensor()
         weight_sensor.write("weight.csv", iterations=10)  # Read Weight
-        weight_sensor.avrg("weight.csv", "avrgweight.csv")  # Average Weight
+        weight_sensor.avrg("weight.csv", "avrgweight.csv", 0.95)  # Average Weight
 
     elif measurement_type == "temp":
         thermo_sensor = thermo.sensor()
@@ -74,7 +71,7 @@ def post(box_id, hog_id, to_post):
                 try:
                     client.create_weight(box_id, "hog-" + hog_id, weight[i], time)
                     fileRW.clear_data("/home/pi/avrgweight.csv")
-                except HTTPError as e:
+                except [requests.exceptions.HTTPError, JSONError] as e:
                     logger.exception("Problem posting weight from %s", box_id)
 
     if to_post["temp"] == True:
@@ -94,14 +91,14 @@ def post(box_id, hog_id, to_post):
                 fileRW.clear_data("/home/pi/avrgtemp_in.csv")
                 fileRW.clear_data("/home/pi/avrgtemp_out.csv")
 
-        except HTTPError as e:
+        except [requests.exceptions.HTTPError, JSONError] as e:
             logger.exception("Problem posting temp from %s", box_id)
 
     if to_post["video"] == True:
         os.chdir("/home/pi/Videos")
         files = [glob.glob(e) for e in ["*.mp4"]]
         for file in files[0]:
-            if file != '1stPass.mp4':
+	    if file != '1stPass.mp4':
                 strtime = file.split("_")[0]
                 time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
                 try:
@@ -109,8 +106,9 @@ def post(box_id, hog_id, to_post):
                         box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
                     )
                     os.remove("/home/pi/Videos/" + file)
-                except HTTPError as e:
+                except [requests.exceptions.HTTPError, JSONError] as e:
                     logger.exception("Problem posting video from %s", box_id)
+
 
 def cleanup():
     files_grabbed = [glob.glob(e) for e in ["/home/pi/*.csv"]]
@@ -128,8 +126,7 @@ def main():
     logger.info("Main loop heartbeat")
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 1:
-        print("PIR Triggered")
+    if pir_sensor.read() == 0:
         logger.info("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
@@ -168,23 +165,24 @@ def main():
         if time_taken < cycle_time:
             time.sleep(cycle_time - time_taken)
         return None
-    # ===========================================
-    # 1 Hour Checks
-    # ===========================================
-    '''elif last_ran != datetime.now().strftime('%H'):
+
+    elif last_ran != datetime.now().strftime('%H'):
         print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
-        # =============PIZERO SFTP ==============
         for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
             response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
             if 0 == response:
                 sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
                 to_post = {'weight': False, 'temp': False, 'video': True}
                 post(box_id, 'outside', to_post)
-        # =============PIZERO SFTP ==============
-        weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
-        weight_sensor.tare_weight()  # writes the platform weight hourly
-        return last_ran'''
+        # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
+        # weight_sensor.tare_weight()  # Commented because awaiting function refactor
+        os.chdir("/home/pi/")
+        files = [glob.glob(e) for e in ["*.log"]]
+        for file in files[0]:
+            filename = box_id + datetime.now().strftime('Y-%m-%d-%H-%M-%S')
+            ftp.ftp_post(filename, file, 'ftpk@robotacademy.co.uk', 'Angelgabe23', '91.208.99.4')
+        return last_ran
 
 
 if __name__ == "__main__":
@@ -193,6 +191,7 @@ if __name__ == "__main__":
             filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5)],
         level=logging.DEBUG,
     )
-
     while True:
-        main()
+        result = main(last_ran)
+        if result:
+            last_ran = result
