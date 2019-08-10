@@ -50,7 +50,7 @@ def create_outside_temp(location_id, temp, time):
 
 def upload_video(location_id, hog_id, video_path, time):
     measurement = _create_measurement(location_id, "video", time, hog_id=hog_id)
-    logger.info(measurement)
+    logger.debug(measurement)
     measurement_id = measurement["id"]
     files = {"video": open(video_path, "rb")}
     url = HOGHOST + "/api/measurements/{}/video/".format(measurement_id)

@@ -91,7 +91,7 @@ if __name__ == "__main__":
         of1,
     ]
     output = subprocess.check_output(command).decode("utf-8")
-    logger.info("Got output %s", output)
+    logger.debug("Got output %s", output)
 
     local_timezone = tzlocal.get_localzone()  # get pytz tzinfo
     d = output[:-9]
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     starttime = datetime.strptime(d, "%Y %m %d %H %M %S")
     local_time = starttime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
     offset = local_time.timestamp()
-    logger.info("Computed date offset %s", offset)
+    logger.debug("Computed date offset %s", offset)
     d = local_time.strftime("%Y %m %d %H %M %S")
     filename = d.replace(" ", "-")
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
         + str(offset)
         + "\\:%Y %m %d %H %M %S}': fontcolor=white@1: x=10: y=10"
     )
-    logger.info("Using ffmpeg filter %s", filter)
+    logger.debug("Using ffmpeg filter %s", filter)
     ffmpeg3 = subprocess.Popen(
         [
             "ffmpeg",

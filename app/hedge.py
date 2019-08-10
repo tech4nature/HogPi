@@ -133,7 +133,7 @@ def cleanup():
 # Main Loop
 #  =======================================
 def main(last_ran):
-    # logger.info("Main loop heartbeat") too much info
+    # logger.debug("Main loop heartbeat") too much info
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
     print("loop active") # commissioning
