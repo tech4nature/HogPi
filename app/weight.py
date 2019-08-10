@@ -100,7 +100,7 @@ class sensor:
         # calculate averages
         sp_average = sum_count / valid_number  # gives average weight of hedgehog
         tup_weight_refined = ("Average Weight", start, "%.2f" % sp_average)
-        fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
+        fileRW.write("/home/pi/" + writefile, tup_weight_refined)
         # delete file after use to give clean start for next average
         os.remove("/home/pi/" + readfile)
         logger.debug(sum_count)
