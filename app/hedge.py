@@ -51,7 +51,7 @@ def read_and_average(measurement_type):
     if measurement_type == "weight":
         weight_sensor = weight.sensor()
         weight_sensor.write("weight.csv", iterations=10)  # Read Weight
-        weight_sensor.avrg("weight.csv", "avrgweight.csv", 0.95)  # Average Weight
+        weight_sensor.avrg("weight.csv", "avrgweight.csv")  # Average Weight
 
     elif measurement_type == "temp":
         thermo_sensor = thermo.sensor()
@@ -129,6 +129,7 @@ def main(last_ran):
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
     if pir_sensor.read() == 1:
+        print('PIR READ')
         logger.info("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
@@ -177,8 +178,8 @@ def main(last_ran):
                 sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
                 to_post = {'weight': False, 'temp': False, 'video': True}
                 post(box_id, 'outside', to_post)
-        # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
-        # weight_sensor.tare_weight()  # Commented because awaiting function refactor
+        weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
+        weight_sensor.tare_weight()  # Commented because awaiting function refactor
         os.chdir("/home/pi/HogPi/app")
         files = [glob.glob(e) for e in ["*.log"]]
         for file in files[0]:
