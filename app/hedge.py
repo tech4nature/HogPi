@@ -168,23 +168,30 @@ def main(last_ran):
         if time_taken < cycle_time:
             time.sleep(cycle_time - time_taken)
         return None
-    
+
     elif last_ran != datetime.now().strftime('%H'):
         print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
         last_ran = datetime.now().strftime('%H')
-        for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
-            response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
-            if 0 == response:
-                sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
-                to_post = {'weight': False, 'temp': False, 'video': True}
-                post(box_id, 'outside', to_post)
-        weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
+        try:
+            for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
+                response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
+                if 0 == response:
+                    sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
+                    to_post = {'weight': False, 'temp': False, 'video': True}
+                    post(box_id, 'outside', to_post)
+        except Exception as e:
+            logger.exception('SFTP has failed')
+        weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         os.chdir("/home/pi/HogPi/app")
-        files = [glob.glob(e) for e in ["*.log"]]
-        for file in files[0]:
-            filename = box_id + datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-            ftp.ftp_post(filename, file, 'ftpk@robotacademy.co.uk', 'Angelgabe23', '91.208.99.4')
+        try:
+            files = [glob.glob(e) for e in ["*.log"]]
+            for file in files[0]:
+                filename = box_id + datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+                ftp.ftp_post(filename, file, 'ftpk@robotacademy.co.uk',
+                             'Angelgabe23', '91.208.99.4')
+        except Exception as e:
+            logger.exception('FTP has failed')
         return last_ran
 
 
