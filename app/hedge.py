@@ -1,7 +1,7 @@
 #  =======================================
 # Import Statements
 #  =======================================
-
+import ftp
 import weight
 import pir
 import logging
@@ -19,6 +19,8 @@ import subprocess
 import sftp
 from datetime import datetime
 from pathlib import Path
+import requests.exceptions
+import json.decoder
 
 
 #  =======================================
@@ -30,7 +32,7 @@ fileRW = output.Output()
 #  =======================================
 # Variable settings
 #  =======================================
-box_id = "box-9082242689124"
+box_id = "box-7943438380890"
 cycle_time = 600
 last_ran = None
 PIZERO_IP = '10.170.1.'
@@ -71,7 +73,7 @@ def post(box_id, hog_id, to_post):
                 try:
                     client.create_weight(box_id, "hog-" + hog_id, weight[i], time)
                     fileRW.clear_data("/home/pi/avrgweight.csv")
-                except [requests.exceptions.HTTPError, JSONError] as e:
+                except Exception as e:
                     logger.exception("Problem posting weight from %s", box_id)
 
     if to_post["temp"] == True:
@@ -91,14 +93,14 @@ def post(box_id, hog_id, to_post):
                 fileRW.clear_data("/home/pi/avrgtemp_in.csv")
                 fileRW.clear_data("/home/pi/avrgtemp_out.csv")
 
-        except [requests.exceptions.HTTPError, JSONError] as e:
+        except Exception as e:
             logger.exception("Problem posting temp from %s", box_id)
 
     if to_post["video"] == True:
         os.chdir("/home/pi/Videos")
         files = [glob.glob(e) for e in ["*.mp4"]]
         for file in files[0]:
-	    if file != '1stPass.mp4':
+            if file != '1stPASS.mp4':
                 strtime = file.split("_")[0]
                 time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
                 try:
@@ -106,7 +108,7 @@ def post(box_id, hog_id, to_post):
                         box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
                     )
                     os.remove("/home/pi/Videos/" + file)
-                except [requests.exceptions.HTTPError, JSONError] as e:
+                except Exception as e:
                     logger.exception("Problem posting video from %s", box_id)
 
 
@@ -122,11 +124,11 @@ def cleanup():
 #  =======================================
 # Main Loop
 #  =======================================
-def main():
+def main(last_ran):
     logger.info("Main loop heartbeat")
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 0:
+    if pir_sensor.read() == 1:
         logger.info("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
@@ -177,6 +179,11 @@ def main():
                 post(box_id, 'outside', to_post)
         # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
         # weight_sensor.tare_weight()  # Commented because awaiting function refactor
+        os.chdir("/home/pi/HogPi/app")
+        files = [glob.glob(e) for e in ["*.log"]]
+        for file in files[0]:
+            filename = box_id + datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+            ftp.ftp_post(filename, file, 'ftpk@robotacademy.co.uk', 'Angelgabe23', '91.208.99.4')
         return last_ran
 
 
@@ -187,4 +194,6 @@ if __name__ == "__main__":
         level=logging.DEBUG,
     )
     while True:
-        main()
+        result = main(last_ran)
+        if result:
+            last_ran = result
