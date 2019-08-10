@@ -177,8 +177,6 @@ def main(last_ran):
                 sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
                 to_post = {'weight': False, 'temp': False, 'video': True}
                 post(box_id, 'outside', to_post)
-        # weight_sensor = weight.sensor() # Will be run once an hour if PIR not triggered
-        # weight_sensor.tare_weight()  # Commented because awaiting function refactor
         os.chdir("/home/pi/HogPi/app")
         files = [glob.glob(e) for e in ["*.log"]]
         for file in files[0]:
