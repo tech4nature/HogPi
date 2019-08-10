@@ -1,4 +1,3 @@
-import post
 import video
 import subprocess
 import thermo
@@ -12,9 +11,10 @@ def main_menu():
 
     if x == "t":
         temperature = thermo.sensor()
-        temperature.write(time=10)
-        temperature.avrg("temp_in.csv", "avrtempin.csv")
-        temperature.avrg("temp_out.csv", "avrtempout.csv")
+        t1 = temperature.write(iterations=30)
+        print(t1)
+        print(temperature.avrg("temp_in.csv", "avrtempin.csv"))
+        print(temperature.avrg("temp_out.csv", "avrtempout.csv"))
         main_menu()
 
     elif x == "v":
@@ -27,8 +27,8 @@ def main_menu():
         weight_sensor = weight.sensor()
         weight_sensor.tare_weight()
         weight_sensor.read()
-        weight_sensor.write("weight.csv", 30)
-        weight_sensor.avrg("weight.csv", "avrweight.csv")  # -1 use all values
+        print(weight_sensor.write("weight.csv", 30))
+        print(weight_sensor.avrg("weight.csv", "avrweight.csv"))  # -1 use all values
         # weight_sensor.tare_weight(100)  # 100 = min tolerance
         main_menu()
 
