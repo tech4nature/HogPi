@@ -51,7 +51,7 @@ def read_and_average(measurement_type):
     if measurement_type == "weight":
         weight_sensor = weight.sensor()
         weight_sensor.write("weight.csv", iterations=10)  # Read Weight
-        weight_sensor.avrg("weight.csv", "avrgweight.csv", 0.95)  # Average Weight
+        weight_sensor.avrg("weight.csv", "avrgweight.csv")  # Average Weight
 
     elif measurement_type == "temp":
         thermo_sensor = thermo.sensor()
@@ -129,6 +129,7 @@ def main(last_ran):
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
     if pir_sensor.read() == 1:
+        print('PIR READ')
         logger.info("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
