@@ -21,6 +21,7 @@ from datetime import datetime
 from pathlib import Path
 import requests.exceptions
 import json.decoder
+import tzlocal
 
 
 #  =======================================
@@ -33,7 +34,7 @@ fileRW = output.Output()
 # Variable settings
 #  =======================================
 box_id = "box-7943438380890"
-cycle_time = 600
+cycle_time = 100
 last_ran = None
 PIZERO_IP = '10.170.1.'
 PIZERO_IP_MIN = 11
@@ -61,7 +62,9 @@ def read_and_average(measurement_type):
 
 
 def post(box_id, hog_id, to_post):
+    print("posting") # commissioning
     if to_post["weight"] == True:
+        print("post weight") # commissioning
         weight = fileRW.read("/home/pi/avrgweight.csv", 2)
         times = fileRW.read("/home/pi/avrgweight.csv", 1)
         posts_success = True
@@ -77,6 +80,7 @@ def post(box_id, hog_id, to_post):
                     logger.exception("Problem posting weight from %s", box_id)
 
     if to_post["temp"] == True:
+        print("post temp")# commissioning
         temps_in = fileRW.read("/home/pi/avrgtemp_in.csv", 1)
         temps_out = fileRW.read("/home/pi/avrgtemp_out.csv", 1)
         times_in = fileRW.read("/home/pi/avrgtemp_in.csv", 0)
@@ -103,6 +107,7 @@ def post(box_id, hog_id, to_post):
             if file != '1stPASS.mp4':
                 strtime = file.split("_")[0]
                 time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
+                time = time.replace(tzinfo=tzlocal.get_localzone())
                 try:
                     client.upload_video(
                         box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
@@ -125,12 +130,15 @@ def cleanup():
 # Main Loop
 #  =======================================
 def main(last_ran):
-    logger.info("Main loop heartbeat")
+    # logger.info("Main loop heartbeat") too much info
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
+    print("loop active") # commissioning
     if pir_sensor.read() == 1:
-        print('PIR READ')
-        logger.info("Started")
+        logger.debug("PIR READ")
+        weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
+        weight_sensor.tare_weight()  # Commented because awaiting function refactor
+        logger.debug("Started")
         rfid_tag = rfid_sensor.read()[-16:]
         #  =======================================
         # Weight, Temp and Video
@@ -140,12 +148,13 @@ def main(last_ran):
                 if i != "video":  # Video had to be run outside of Process
                     process = Process(target=read_and_average(i))
                     # We start the process and we block for 120 seconds.
+                    print ("process is: " + str(i)) # commissioning
                     process.start()
                     process.join(timeout=120)
                     # We terminate the process.
                     process.terminate()
                 else:  # Runs video
-                    logger.info("Running Video")
+                    logger.debug("Running Video")
                     try:
                         path = '/home/pi/HogPi/app/video.py'
                         subprocess.check_output(["python3", path], timeout=120)
@@ -158,7 +167,7 @@ def main(last_ran):
                 to_post[i] = False
 
         post(box_id, rfid_tag, to_post)  # Posts data
-        logger.info("Post Completed")
+        logger.debug("Post Completed")
         cleanup()
         #  =======================================
         # 10 Minute Check
@@ -166,6 +175,8 @@ def main(last_ran):
         end_time = time.time()
         time_taken = end_time - start_time
         if time_taken < cycle_time:
+            print("sleeping: " + str(cycle_time)) # commissioning
+            print (cycle_time - time_taken)
             time.sleep(cycle_time - time_taken)
         return None
 
