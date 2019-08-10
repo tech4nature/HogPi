@@ -1,6 +1,7 @@
 from hx711 import HX711
 from time import sleep, strftime
 from datetime import datetime, timedelta
+from datetime import timezone
 from output import Output
 import numpy
 import os
@@ -33,7 +34,7 @@ class sensor:
         return
 
     def get_time(self):
-        d = datetime.now()
+        d = datetime.now(timezone.utc)
         x = d.strftime("%Y %m %d %H %M %S")
         logger.debug("Raw time: %s", d)
         logger.debug("Refined time: %s", x)
@@ -100,7 +101,7 @@ class sensor:
         # calculate averages
         sp_average = sum_count / valid_number  # gives average weight of hedgehog
         tup_weight_refined = ("Average Weight", start, "%.2f" % sp_average)
-        fileRW.write("/home/pi/" + writefile, tup_weight_refined, True)
+        fileRW.write("/home/pi/" + writefile, tup_weight_refined)
         # delete file after use to give clean start for next average
         os.remove("/home/pi/" + readfile)
         logger.debug(sum_count)
