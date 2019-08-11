@@ -23,6 +23,8 @@ collector on each box.
     # Replace default config with our own
     sudo cp deploy/logging/td-agent-bit.conf /etc/td-agent-bit/td-agent-bit.conf
 
+You should change every instance of the line `Tag mem.box1` within `/etc/td-agent-bit/td-agent-bit.conf`, to match the box that you're installing on, so we know the origin of each log entry. For example, you might change `Tag mem.box1` to `Tag mem.box-7943438380890` throughout.
+
 Then get a copy of the Google Cloud credentials file `hedgehogrepublic-249416-03aed70fa4e3.json` and place it in `/etc/td-agent-bit/`, and restart the service:
 
     sudo service td-agent-bit restart
