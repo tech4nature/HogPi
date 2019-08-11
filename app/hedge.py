@@ -184,7 +184,7 @@ def main(last_ran):
         return None
 
     elif last_ran != datetime.now().strftime('%H'):
-        print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
+        logger.info("Main loop heartbeat; last ran %s", last_ran)
         last_ran = datetime.now().strftime('%H')
         try:
             for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
