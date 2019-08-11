@@ -33,26 +33,26 @@ def main_menu():
         main_menu()
 
     elif x == "p":
-        '''
+        """
         Runs PIR until triggered(1) and then runs pin reverts to not triggered(0)
-        '''
+        """
         pir_sensor = pir.sensor(11)
         while True:
             result = pir_sensor.read()
             if result == 1:
-                print('PIR TRIGGERED')
+                print("PIR TRIGGERED")
                 while True:
                     result = pir_sensor.read()
                     if result == 0:
-                        print('PIR NOT TRIGGERED')
+                        print("PIR NOT TRIGGERED")
                         break
 
         main_menu()
 
     elif x == "pv":
-        '''
+        """
         Runs PIR until triggered(1) and then runs pin reverts to not triggered(0)
-        '''
+        """
         pir_sensor = pir.sensor(11)
         while True:
             print(pir_sensor.read())
