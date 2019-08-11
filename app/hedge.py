@@ -227,15 +227,11 @@ class StackdriverFormatter(logging.Formatter):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        format=StackdriverFormatter(),
-        handlers=[
-            logging.handlers.RotatingFileHandler(
-                filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5
-            )
-        ],
-        level=logging.DEBUG,
+    handler = logging.handlers.RotatingFileHandler(
+        filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5
     )
+    handler.setFormatter(StackdriverFormatter())
+    logging.basicConfig(handlers=[handler], level=logging.DEBUG)
     while True:
         result = main(last_ran)
         if result:
