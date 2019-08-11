@@ -1,0 +1,112 @@
+Commissioning commands
+======================
+
+# installing and testing
+on running ftp started filename
+
+# check mic
+arecord -l
+arecord -D plughw:1 -d 10 -c1 -r 48000 -f S32_LE -t wav -V mono -v file.wav
+  #also when soundacard cannot be selected
+  sudo nano /etc/modprobe.d/raspi-blacklist.conf
+
+#other sound dependency files
+.asoundrc must be pi directory
+
+
+#killing processes started with autostart
+sudo ps -ax | grep python
+#python could be your program name
+sudo kill <PID>
+
+
+#test video
+raspivid -o video.h264 -t 10000
+
+
+#Permisson changes reset chmod
+in testing can use 777 especially when changing around how the program is to be running
+sudo chmod 755 /folder/file
+#to read chmod
+ls -l
+
+#resetting temp
+sudo nano /boot/config.txt
+disable
+dtoverlay=w1-gpio
+then enable
+dtoverlay=w1-gpio
+
+sudo modprobe w1-gpio
+sudo modprobe w1-therm
+cd /sys/bus/w1/devices
+ls
+cd 28-xxxx (change this to match what serial number pops up)
+cat w1_slave
+
+**************************************************
+Different attempts
+**************************************************
+# setting up a continuous running process in linux
+nohup python3 /home/pi/v0.8.1/test_hedge1.py &
+ ---failed
+# this gave initial result and then hung up
+sudo nano /etc/rc.local
+rc.local ---failed
+# this gave no result drops w1_slave
+
+********************************************************************************
+crontab -e
+@reboot sh.run sh
+run.sh
+#!/bin/bash
+/bin/sleep 5 && /usr/bin/python3 /home/pi/v0.8.1/test_hedge1.py &
+
+This is still set up and perhaps has the best chance of running, but fails at ftp stage.
+
+Seb Update:
+
+1. never use sudo in cron, echoed in forums to some extent
+2. create a bash sh file wrapper which calls your program
+3. set -e (research)
+4. mailto command can be used to mail errors (forums describe mixed success here)
+5. exit 0
+********************************************************************************
+
+
+#services systemd
+# setting up running in local drive
+sudo nano /lib/systemd/system/sample.service
+insert>>
+[Unit]
+ Description=My Sample Service
+ After=multi-user.target
+
+ [Service]
+ Type=idle
+ ExecStart=/usr/bin/python3 /home/pi/sample.py
+
+ [Install]
+ WantedBy=multi-user.target
+<<insert
+
+sudo systemctl daemon-reload
+sudo systemctl enable sample.service
+#reboot
+sudo reboot
+#making sure permissions are right
+sudo chmod 644 /lib/systemd/system/sample.service
+
+#stop
+sudo systemctl stop sample.service
+
+# start
+sudo systemctl start sample.service
+
+#check running of Service
+systemctl status sample.service
+
+# removing Service
+sudo systemctl daemon-reload
+sudo systemctl disable sample.service
+#checek running
