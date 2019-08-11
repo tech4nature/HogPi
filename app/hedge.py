@@ -18,6 +18,7 @@ import pysftp
 import subprocess
 import sftp
 from datetime import datetime
+from datetime import timezone
 from pathlib import Path
 import requests.exceptions
 import json
@@ -62,15 +63,14 @@ def read_and_average(measurement_type):
 
 
 def post(box_id, hog_id, to_post):
-    print("posting") # commissioning
+    print("posting")  # commissioning
     if to_post["weight"] == True:
-        print("post weight") # commissioning
+        print("post weight")  # commissioning
         weight = fileRW.read("/home/pi/avrgweight.csv", 2)
         times = fileRW.read("/home/pi/avrgweight.csv", 1)
         posts_success = True
         for i in range(len(weight)):
             time = datetime.strptime(times[i], "%Y %m %d %H %M %S")
-            time = time.replace(tzinfo=tzlocal.get_localzone()) # timezone correction
             if weight[i] == "0.00":
                 pass
             else:
@@ -81,7 +81,7 @@ def post(box_id, hog_id, to_post):
                     logger.exception("Problem posting weight from %s", box_id)
 
     if to_post["temp"] == True:
-        print("post temp")# commissioning
+        print("post temp")  # commissioning
         temps_in = fileRW.read("/home/pi/avrgtemp_in.csv", 1)
         temps_out = fileRW.read("/home/pi/avrgtemp_out.csv", 1)
         times_in = fileRW.read("/home/pi/avrgtemp_in.csv", 0)
@@ -90,12 +90,10 @@ def post(box_id, hog_id, to_post):
         try:
             for i in range(len(temps_in)):
                 time_in = datetime.strptime(times_in[i], "%Y %m %d %H %M %S")
-                time = time_in.replace(tzinfo=tzlocal.get_localzone()) # timezone correction
                 client.create_inside_temp(box_id, temps_in[i], time_in)
 
             for i in range(len(temps_out)):
                 time_out = datetime.strptime(times_out[i], "%Y %m %d %H %M %S")
-                time = time_out.replace(tzinfo=tzlocal.get_localzone()) # timezone correction
                 client.create_outside_temp(box_id, temps_out[i], time_out)
                 fileRW.clear_data("/home/pi/avrgtemp_in.csv")
                 fileRW.clear_data("/home/pi/avrgtemp_out.csv")
@@ -109,8 +107,9 @@ def post(box_id, hog_id, to_post):
         for file in files[0]:
             if file != '1stPASS.mp4':
                 strtime = file.split("_")[0]
-                time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S")
-                time = time.replace(tzinfo=tzlocal.get_localzone()) # timezone correction
+                time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S-%z")
+                time = time.astimezone(timezone.utc)  # timezone correction
+
                 try:
                     client.upload_video(
                         box_id, "hog-" + hog_id, "/home/pi/Videos/" + file, time
@@ -136,7 +135,7 @@ def main(last_ran):
     # logger.debug("Main loop heartbeat") too much info
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    print("loop active") # commissioning
+    print("loop active")  # commissioning
     if pir_sensor.read() == 1:
         logger.debug("PIR READ")
         weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
@@ -151,7 +150,7 @@ def main(last_ran):
                 if i != "video":  # Video had to be run outside of Process
                     process = Process(target=read_and_average(i))
                     # We start the process and we block for 120 seconds.
-                    print ("process is: " + str(i)) # commissioning
+                    print("process is: " + str(i))  # commissioning
                     process.start()
                     process.join(timeout=120)
                     # We terminate the process.
@@ -178,8 +177,8 @@ def main(last_ran):
         end_time = time.time()
         time_taken = end_time - start_time
         if time_taken < cycle_time:
-            print("sleeping: " + str(cycle_time)) # commissioning
-            print (cycle_time - time_taken)
+            print("sleeping: " + str(cycle_time))  # commissioning
+            print(cycle_time - time_taken)
             time.sleep(cycle_time - time_taken)
         return None
 
