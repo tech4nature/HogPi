@@ -25,7 +25,11 @@ collector on each box.
 
 You should change every instance of the line `Tag mem.box1` within `/etc/td-agent-bit/td-agent-bit.conf`, to match the box that you're installing on, so we know the origin of each log entry. For example, you might change `Tag mem.box1` to `Tag mem.box-7943438380890` throughout.
 
-Then get a copy of the Google Cloud credentials file `hedgehogrepublic-249416-03aed70fa4e3.json` and place it in `/etc/td-agent-bit/`, and restart the service:
+Then get a copy of the Google Cloud credentials file `hedgehogrepublic-249416-03aed70fa4e3.json` and place it in `/etc/td-agent-bit/`, and test the service manually:
+
+    sudo /opt/td-agent-bit/bin/td-agent-bit -v  -c /etc/td-agent-bit/td-agent-bit.conf -f 0
+
+You should see output with no red errors.  If all is OK:
 
     sudo service td-agent-bit restart
 
