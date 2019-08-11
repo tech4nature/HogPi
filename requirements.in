@@ -6,3 +6,4 @@ pyserial
 requests
 pytest-cov
 gpiozero
+tzlocal
