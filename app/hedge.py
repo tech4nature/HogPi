@@ -90,12 +90,10 @@ def post(box_id, hog_id, to_post):
         try:
             for i in range(len(temps_in)):
                 time_in = datetime.strptime(times_in[i], "%Y %m %d %H %M %S")
-                time = time_in.replace(tzinfo=tzlocal.get_localzone()) # timezone correction
                 client.create_inside_temp(box_id, temps_in[i], time_in)
 
             for i in range(len(temps_out)):
                 time_out = datetime.strptime(times_out[i], "%Y %m %d %H %M %S")
-                time = time_out.replace(tzinfo=tzlocal.get_localzone()) # timezone correction
                 client.create_outside_temp(box_id, temps_out[i], time_out)
                 fileRW.clear_data("/home/pi/avrgtemp_in.csv")
                 fileRW.clear_data("/home/pi/avrgtemp_out.csv")

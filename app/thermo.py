@@ -31,7 +31,7 @@ class sensor:
             raise Exception
 
     def get_time(self):
-        d = datetime.now()
+        d = datetime.now(timezone.utc)
         x = d.strftime("%Y %m %d %H %M %S")
         logger.debug("Raw time: %s", d)
         logger.debug("Refined time: %s", x)
