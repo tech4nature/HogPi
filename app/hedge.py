@@ -70,7 +70,7 @@ def post(box_id, hog_id, to_post):
         posts_success = True
         for i in range(len(weight)):
             time = datetime.strptime(times[i], "%Y %m %d %H %M %S")
-            time = time.replace(tzinfo=tzlocal.get_localzone()) # timezone correction
+            time = tzlocal.get_localzone().localize(time, is_dst=True)
             if weight[i] == "0.00":
                 pass
             else:
