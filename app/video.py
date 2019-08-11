@@ -101,7 +101,7 @@ if __name__ == "__main__":
     local_time = starttime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
     offset = local_time.timestamp()
     logger.debug("Computed date offset %s", offset)
-    d = local_time.strftime("%Y %m %d %H %M %S")
+    d = local_time.strftime("%Y %m %d %H %M %S %z")
     filename = d.replace(" ", "-")
 
     # ffmpeg 2nd pass to sync audio and video
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
     if ffmpeg3.returncode == 0:
-        #os.remove(of1)
+        # os.remove(of1)
         os.remove(of2)
         # os.remove("/home/pi/jackTest/audio")
 
