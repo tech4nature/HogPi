@@ -20,7 +20,7 @@ import sftp
 from datetime import datetime
 from pathlib import Path
 import requests.exceptions
-import json.decoder
+import json
 import tzlocal # timecorrection
 
 
@@ -209,10 +209,31 @@ def main(last_ran):
         return last_ran
 
 
+class StackdriverFormatter(logging.Formatter):
+    def __init__(self, *args, **kwargs):
+        super(StackdriverFormatter, self).__init__(*args, **kwargs)
+
+    def format(self, record):
+        return json.dumps(
+            {
+                "severity": record.levelname,
+                "message": record.getMessage(),
+                "name": record.name,
+                "time": datetime.utcfromtimestamp(record.created).strftime(
+                    "%Y-%m-%dT%H:%M:%S"
+                ),
+            }
+        )
+
+
 if __name__ == "__main__":
     logging.basicConfig(
-        handlers=[logging.handlers.RotatingFileHandler(
-            filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5)],
+        format=StackdriverFormatter(),
+        handlers=[
+            logging.handlers.RotatingFileHandler(
+                filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5
+            )
+        ],
         level=logging.DEBUG,
     )
     while True:
