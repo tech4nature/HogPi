@@ -1,4 +1,3 @@
-import video
 import subprocess
 import pir
 import led
@@ -15,7 +14,8 @@ def main_menu():
 
     elif x == "p":
         '''
-        Runs PIR until triggered(1) and then runs pin reverts to not triggered(0)
+        Runs PIR until triggered(1) and then
+        runs pin reverts to not triggered(0)
         '''
         pir_sensor = pir.sensor(4)
         while True:
@@ -32,7 +32,7 @@ def main_menu():
 
     elif x == "pv":
         '''
-        Runs PIR until triggered(1) and then runs pin reverts to not triggered(0)
+        Prints result of a pir read
         '''
         pir_sensor = pir.sensor(4)
         while True:
