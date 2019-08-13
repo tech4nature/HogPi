@@ -21,8 +21,8 @@ from datetime import datetime
 from datetime import timezone
 from pathlib import Path
 import requests.exceptions
-import json.decoder
-import tzlocal  # timecorrection
+import json
+import tzlocal # timecorrection
 
 
 #  =======================================
@@ -183,7 +183,7 @@ def main(last_ran):
         return None
 
     elif last_ran != datetime.now().strftime('%H'):
-        print(str(last_ran) + '          ' + datetime.now().strftime('%H'))
+        logger.info("Main loop heartbeat; last ran %s", last_ran)
         last_ran = datetime.now().strftime('%H')
         try:
             for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
@@ -208,12 +208,29 @@ def main(last_ran):
         return last_ran
 
 
+class StackdriverFormatter(logging.Formatter):
+    def __init__(self, *args, **kwargs):
+        super(StackdriverFormatter, self).__init__(*args, **kwargs)
+
+    def format(self, record):
+        return json.dumps(
+            {
+                "severity": record.levelname,
+                "message": record.getMessage(),
+                "name": record.name,
+                "time": datetime.utcfromtimestamp(record.created).strftime(
+                    "%Y-%m-%dT%H:%M:%S"
+                ),
+            }
+        )
+
+
 if __name__ == "__main__":
-    logging.basicConfig(
-        handlers=[logging.handlers.RotatingFileHandler(
-            filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5)],
-        level=logging.DEBUG,
+    handler = logging.handlers.RotatingFileHandler(
+        filename="hedge.log", maxBytes=1024 * 1024 * 10, backupCount=5
     )
+    handler.setFormatter(StackdriverFormatter())
+    logging.basicConfig(handlers=[handler], level=logging.DEBUG)
     while True:
         result = main(last_ran)
         if result:
