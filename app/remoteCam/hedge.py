@@ -16,5 +16,5 @@ while True:
         if pir_sensor.read(500) == 1:
             print("PIR triggered")
             irled.on()
-            subprocess.run(["python3", "video.py"])
+            subprocess.run(["/usr/bin/python3", "/home/pi/HogPi/app/remoteCam/video.py"])
             irled.off()
