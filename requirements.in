@@ -6,3 +6,5 @@ pyserial
 requests
 pytest-cov
 gpiozero
+sphinx
+sphinx-rtd-theme
