@@ -73,7 +73,7 @@ if __name__ == "__main__":
     d = output[:-9]
     d = d.replace("-", " ").replace("T", " ").replace(":", " ")
 
-    starttime = datetime.strptime(d, "%Y %m %d %H %M %S")
+    starttime = datetime.strptime(d, "%Y %m %d %H %M %S %z")
     local_time = starttime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
     offset = local_time.timestamp()
     logger.debug("Computed date offset %s", offset)
