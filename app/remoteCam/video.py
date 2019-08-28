@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
 #    irled = led.sensor(3)  # Instantiate led class and assign the pin the BCM3
-
-    of = "/home/pi/Videos/"  # output folder
+    of = "/home/pi/IntermediateVideos/" # output folder
+    ff = "/home/pi/Videos/" # final folder
     of1 = of + "1stPASS.mp4"
     rectime = "10"  # record time of 10s
 
@@ -73,11 +73,11 @@ if __name__ == "__main__":
     d = output[:-9]
     d = d.replace("-", " ").replace("T", " ").replace(":", " ")
 
-    starttime = datetime.strptime(d, "%Y %m %d %H %M %S %z")
+    starttime = datetime.strptime(d, "%Y %m %d %H %M %S")
     local_time = starttime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
     offset = local_time.timestamp()
     logger.debug("Computed date offset %s", offset)
-    d = local_time.strftime("%Y %m %d %H %M %S")
+    d = local_time.strftime("%Y %m %d %H %M %S %z")
     filename = d.replace(" ", "-")
 
     # ffmpeg 3rd pass to add BITC and flip video !
@@ -114,5 +114,5 @@ if __name__ == "__main__":
     #if ffmpeg3.returncode == 0:
         # os.remove(of1)
         # os.remove("/home/pi/jackTest/audio")
-
+    os.rename(of3, ff + of3.split('/')[-1])
     sys.exit()
