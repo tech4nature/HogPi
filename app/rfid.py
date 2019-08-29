@@ -22,7 +22,7 @@ class sensor:
             timeout=10,
         )
 
-    def read(self, record_time):
+    def read(self, rfid_record_time):
         time_start = time.time() # record time
         while (time.time() - time_start) < record_time # record for 120 secs unless read
             ser.reset_input_buffer() #  clean buffer
