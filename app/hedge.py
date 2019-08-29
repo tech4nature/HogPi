@@ -143,6 +143,7 @@ def main(last_ran):
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         logger.debug("Started")
         rfid_tag = rfid_sensor.read(rfid_record_time)[-16:] # record for fixed time after pir reading
+        time.sleep(30) # wait 30 s after rfid read to ensure naimal present
         #  =======================================
         # Weight, Temp and Video
         #  =======================================
