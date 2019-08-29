@@ -1,5 +1,5 @@
 import serial
-from time import sleep
+import time
 
 timeout = 1
 global TagFound
@@ -22,14 +22,15 @@ class sensor:
             timeout=10,
         )
 
-    def read(self):
-        ser.reset_input_buffer()
-        ser.reset_output_buffer()
-        ser.write(b"sd2\r\n")
-        a = ser.read_until(size=19).decode(
+    def read(self, record_time):
+        time_start = time.time() # record time
+        while (time.time() - time_start) < record_time # record for 120 secs unless read
+            ser.reset_input_buffer() #  clean buffer
+            ser.reset_output_buffer() # clean buffer
+            ser.write(b"sd2\r\n") # set mode of rfid
+            a = ser.read_until(size=19).decode(
             "utf-8"
-        )  # 16 byte tag + \r + \n somehow is 19 not 18
-        if len(a) < 16:
-            return "TagNotPresent"
-        else:
-            return a
+            )  # 16 byte  + \r + \n somehow is 19 not 18
+            if len(a) > 15: # if read then return out of function
+                return a # return and break out of functions
+        return "TagNotPresent" # return only if timed out

@@ -36,6 +36,7 @@ fileRW = output.Output()
 #  =======================================
 box_id = "box-7943438380890"
 cycle_time = 100
+rfid_record_time = 90
 last_ran = None
 PIZERO_IP = '10.170.1.'
 PIZERO_IP_MIN = 11
@@ -141,7 +142,7 @@ def main(last_ran):
         weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         logger.debug("Started")
-        rfid_tag = rfid_sensor.read()[-16:]
+        rfid_tag = rfid_sensor.read(rfid_record_time)[-16:] # record for fixed time after pir reading
         #  =======================================
         # Weight, Temp and Video
         #  =======================================
