@@ -75,8 +75,8 @@ if __name__ == "__main__":
 
     starttime = datetime.strptime(d, "%Y %m %d %H %M %S")
     local_time = starttime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
-    working_folderfset = local_time.timestamp()
-    logger.debug("Computed date working_folderfset %s", working_folderfset)
+    offset = local_time.timestamp()
+    logger.debug("Computed date offset %s", offset)
     d = local_time.strftime("%Y %m %d %H %M %S %z")
     filename = d.replace(" ", "-")
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     output_file3 = working_folder + filename + "_ext.mp4"  # added _ext to demark external camera
     filter = (
         "drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text='%{pts\:localtime\:"
-        + str(working_folderfset)
+        + str(offset)
         + "\\:%Y %m %d %H %M %S}': fontcolor=white@1: x=10: y=10"
     )
     logger.debug("Using ffmpeg filter %s", filter)
