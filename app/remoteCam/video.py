@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
 #    irled = led.sensor(3)  # Instantiate led class and assign the pin the BCM3
-    of = "/home/pi/IntermediateVideos/" # output folder
-    ff = "/home/pi/Videos/" # final folder
-    of1 = of + "1stPASS.mp4"
-    rectime = "10"  # record time of 10s
+    working_folder = "/home/pi/IntermediateVideos/" # output folder
+    final_folder = "/home/pi/Videos/" # final folder
+    output_file1 = working_folder + "1stPASS.mp4"
+    rectime = "10"  # record time working_folder 10s
 
     # ffmpeg 1st Pass record
  #   irled.on()  # Turn led on
@@ -48,13 +48,13 @@ if __name__ == "__main__":
             "-t",
             rectime,
             "-y",
-            of1,
+            output_file1,
         ]
     )
     ffmpeg1.wait()
-  #  irled.off()  # Turn led off
+  #  irled.working_folderf()  # Turn led working_folderf
 
-    # ffprobe to extract recording time and date and turn into offset seconds
+    # ffprobe to extract recording time and date and turn into working_folderfset seconds
     command = [
         "ffprobe",
         "-v",
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         "-of",
         "default=nw=1:nk=1",
         "-i",
-        of1,
+        output_file1,
     ]
     output = subprocess.check_output(command).decode("utf-8")
     logger.debug("Got output %s", output)
@@ -75,16 +75,16 @@ if __name__ == "__main__":
 
     starttime = datetime.strptime(d, "%Y %m %d %H %M %S")
     local_time = starttime.replace(tzinfo=pytz.utc).astimezone(local_timezone)
-    offset = local_time.timestamp()
-    logger.debug("Computed date offset %s", offset)
+    working_folderfset = local_time.timestamp()
+    logger.debug("Computed date working_folderfset %s", working_folderfset)
     d = local_time.strftime("%Y %m %d %H %M %S %z")
     filename = d.replace(" ", "-")
 
     # ffmpeg 3rd pass to add BITC and flip video !
-    of3 = of + filename + "_ext.mp4"  # added _ext to demark external camera
+    output_file3 = working_folder + filename + "_ext.mp4"  # added _ext to demark external camera
     filter = (
         "drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text='%{pts\:localtime\:"
-        + str(offset)
+        + str(working_folderfset)
         + "\\:%Y %m %d %H %M %S}': fontcolor=white@1: x=10: y=10"
     )
     logger.debug("Using ffmpeg filter %s", filter)
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         [
             "ffmpeg",
             "-i",
-            of1,
+            output_file1,
             "-vf",
             filter,
             "-c:v",
@@ -105,14 +105,14 @@ if __name__ == "__main__":
             "25",
             "-an",
             "-y",
-            of3,
+            output_file3,
         ]
-    )  # tried '-c:v', 'h264_omx', '-profile', '100'
+    )  # tried '-c:v', 'h264_omx', '-prworking_folderile', '100'
     ffmpeg3.wait()
 
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
     #if ffmpeg3.returncode == 0:
-        # os.remove(of1)
+        # os.remove(output_file1)
         # os.remove("/home/pi/jackTest/audio")
-    os.rename(of3, ff + of3.split('/')[-1])
+    os.rename(output_file3, final_folder + output_file3.split('/')[-1])
     sys.exit()
