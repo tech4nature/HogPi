@@ -141,7 +141,7 @@ if __name__ == "__main__":
         [
             "ffmpeg",
             "-i",
-            ouput_file2,
+            output_file2,
             "-vf",
             filter,
             "-c:v",
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
     if ffmpeg3.returncode == 0:
-        os.remove(ouput_file1)
+        os.remove(output_file1)
         os.remove(output_file2)
         # os.remove("/home/pi/jackTest/audio")
 
