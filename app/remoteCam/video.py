@@ -85,7 +85,7 @@ if __name__ == "__main__":
     filter = (
         "drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text='%{pts\:localtime\:"
         + str(offset)
-        + "\\:%Y %m %d %H %M %S}': fontcolor=white@1: x=10: y=10"
+        + "\\:%Y %m %d %H %M %S}': fontcolor=orange@1: x=10: y=10"
     )
     logger.debug("Using ffmpeg filter %s", filter)
     ffmpeg3 = subprocess.Popen(
