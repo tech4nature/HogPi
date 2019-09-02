@@ -26,22 +26,23 @@ import tzlocal # timecorrection
 
 
 #  =======================================
-# Object settings
-#  =======================================
-pir_sensor = pir.sensor(11)  # BCM
-rfid_sensor = rfid.sensor()
-fileRW = output.Output()
-#  =======================================
 # Variable settings
 #  =======================================
 box_id = "box-7943438380890"
 cycle_time = 100
+rfid_record_time = 120
 last_ran = None
 PIZERO_IP = '10.170.1.'
 PIZERO_IP_MIN = 11
 PIZERO_IP_MAX = 20
 PIZERO_FTP_USERNAME = 'pi'
 PIZERO_FTP_PASSWORD = 'hog1hog1'
+#  =======================================
+# Object settings
+#  =======================================
+pir_sensor = pir.sensor(11)  # BCM
+rfid_sensor = rfid.sensor(rfid_record_time)
+fileRW = output.Output()
 #  =======================================
 # Define functions
 #  =======================================
@@ -141,7 +142,8 @@ def main(last_ran):
         weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         logger.debug("Started")
-        rfid_tag = rfid_sensor.read()[-16:]
+        rfid_tag = rfid_sensor.read()[-16:] # record for fixed time after pir reading
+        time.sleep(30) # wait 30 s after rfid read to ensure naimal present
         #  =======================================
         # Weight, Temp and Video
         #  =======================================
