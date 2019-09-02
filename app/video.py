@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     irled = led.sensor(17)  # Instantiate led class and assign the pin the BCM17
 
-    of = "/home/pi/Videos/"  # output folder
-    of1 = of + "1stPASS.mp4"
+    output_folder = "/home/pi/Videos/"  # output folder
+    output_file1 = output_folder + "1stPASS.mp4"
     rectime = "10"  # record time of 10s
 
     # ffmpeg 1st Pass record
@@ -69,7 +69,7 @@ if __name__ == "__main__":
             "-t",
             rectime,
             "-y",
-            of1,
+            output_file1,
         ],
         stdin=arec.stdout,
     )
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         "-of",
         "default=nw=1:nk=1",
         "-i",
-        of1,
+        output_file1,
     ]
     output = subprocess.check_output(command).decode("utf-8")
     logger.debug("Got output %s", output)
@@ -105,16 +105,16 @@ if __name__ == "__main__":
     filename = d.replace(" ", "-")
 
     # ffmpeg 2nd pass to sync audio and video
-    of2 = of + "2ndPASS.mp4"
+    output_file2 = output_folder + "2ndPASS.mp4"
     ffmpeg2 = subprocess.Popen(
         [
             "ffmpeg",
             "-i",
-            of1,
+            output_file1,
             "-itsoffset",
             "00:00:00.4",
             "-i",
-            of1,
+            output_file1,
             "-c:v",
             "copy",
             "-c:a",
@@ -124,13 +124,13 @@ if __name__ == "__main__":
             "-map",
             "1:0",
             "-y",
-            of2,
+            output_file2,
         ]
     )
     ffmpeg2.wait()
 
     # ffmpeg 3rd pass to add BITC and flip video !
-    of3 = of + filename + "_int.mp4"  # added _int to demark internal camera
+    output_file3 = output_folder + filename + "_int.mp4"  # added _int to demark internal camera
     filter = (
         "drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text='%{pts\:localtime\:"
         + str(offset)
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         [
             "ffmpeg",
             "-i",
-            of2,
+            output_file2,
             "-vf",
             filter,
             "-c:v",
@@ -153,15 +153,15 @@ if __name__ == "__main__":
             "-r",
             "25",
             "-y",
-            of3,
+            output_file3,
         ]
     )  # tried '-c:v', 'h264_omx', '-profile', '100'
     ffmpeg3.wait()
 
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
     if ffmpeg3.returncode == 0:
-        # os.remove(of1)
-        os.remove(of2)
+        os.remove(output_file1)
+        os.remove(output_file2)
         # os.remove("/home/pi/jackTest/audio")
 
     sys.exit()
