@@ -28,3 +28,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    json.dump(config, open('/home/pi/config.json', 'w'))
