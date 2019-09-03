@@ -25,3 +25,6 @@ def main():
     if is_valid == False:
         print('The box name you entered is incorrect, please try again')
         get_box_id()
+
+if __name__ == '__main__':
+    main()
