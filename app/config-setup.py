@@ -10,7 +10,7 @@ def get_box_id():
     i = 0
     for j in location_list:
         i += 1
-        print(i + ') ' + j["name"])
+        print(str(i) + ') ' + j["name"])
     box = int(input('Box Number: '))
     config['box_id'] = location_list[box - 1]['code']
     
