@@ -139,7 +139,6 @@ def main(last_ran):
     # logger.debug("Main loop heartbeat") too much info
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    print("loop active")  # commissioning
     if pir_sensor.read() == 1:
         logger.debug("PIR READ")
         weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
