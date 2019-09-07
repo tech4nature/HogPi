@@ -24,11 +24,14 @@ import requests.exceptions
 import json
 import tzlocal # timecorrection
 
-
-#  =======================================
+# ===================
+# Load in Config File
+# ===================
+config = json.load(open('/home/pi/config.json', 'r'))
+# =================
 # Variable settings
-#  =======================================
-box_id = "box-7943438380890"
+# =================
+box_id = config['box_id']
 cycle_time = 100
 rfid_record_time = 45
 last_ran = None
