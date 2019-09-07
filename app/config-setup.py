@@ -27,7 +27,7 @@ def main():
     except Exception:
         print('Invalid value inputed, try again.')
         get_box_id(config)
+    json.dump(config, open('/home/pi/config.json', 'w'))
 
 if __name__ == '__main__':
     main()
-    json.dump(config, open('/home/pi/config.json', 'w'))
