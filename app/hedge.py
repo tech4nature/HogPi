@@ -30,7 +30,7 @@ import tzlocal # timecorrection
 #  =======================================
 box_id = "box-7943438380890"
 cycle_time = 100
-rfid_record_time = 120
+rfid_record_time = 45
 last_ran = None
 PIZERO_IP = '10.170.1.'
 PIZERO_IP_MIN = 11
@@ -143,7 +143,7 @@ def main(last_ran):
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         logger.debug("Started")
         rfid_tag = rfid_sensor.read()[-16:] # record for fixed time after pir reading
-        time.sleep(30) # wait 30 s after rfid read to ensure naimal present
+        time.sleep(10) # wait 10 s after rfid read to ensure naimal present
         #  =======================================
         # Weight, Temp and Video
         #  =======================================
