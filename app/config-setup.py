@@ -1,10 +1,13 @@
 import json
 import requests
 
-open('/home/pi/config.json', 'w').write('{}')
-config = json.load(open('/home/pi/config.json', 'r'))
 
-def get_box_id():
+def setup():
+    open('/home/pi/config.json', 'w').write('{}')
+    config = json.load(open('/home/pi/config.json', 'r'))
+    return config
+    
+def get_box_id(config):
     response = requests.get('http://trinity-stroud.hedgehogrepublic.org/api/locations/').json()
     location_list = response['results']
     i = 0
@@ -18,10 +21,12 @@ def get_box_id():
 
 def main():
     print('Welcome to the HogPi Setup')
+    config = setup()
     try:
-        get_box_id()
+        get_box_id(config)
     except Exception:
-        get_box_id()
+        print('Invalid value inputed, try again.')
+        get_box_id(config)
 
 if __name__ == '__main__':
     main()
