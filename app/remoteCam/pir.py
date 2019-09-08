@@ -16,7 +16,9 @@ class sensor:
         for i in range(iterations):  # sample iteration times
             if GPIO.input(pin) == 1:  # count the positive reads
                 value = value + 1
-                print(value)  # leave in for commissioning
-                print(iterations)  # leave in for commissioning
-            if value == iterations:  # if all positive then return 1
-                return 1
+                # print(value)  # leave in for commissioning
+                # print(iterations)  # leave in for commissioning
+        if value == iterations:  # if all positive then return 1
+            return 1
+        else:
+            return 0
