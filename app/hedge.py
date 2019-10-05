@@ -137,9 +137,10 @@ def cleanup():
 #  =======================================
 def main(last_ran):
     # logger.debug("Main loop heartbeat") too much info
+    hour = int(datetime.strftime(datetime.now(), '%H')) # get hour now
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 1:
+    if pir_sensor.read() == 1 and (hour >= 22  or hour <= 6): # only record during nightime and pir activated
         logger.debug("PIR READ")
         weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
