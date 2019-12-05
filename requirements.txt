@@ -22,6 +22,7 @@ idna==2.8                 # via requests
 imagesize==1.1.0          # via sphinx
 importlib-metadata==0.17  # via pluggy, pytest
 jinja2==2.10.1            # via sphinx
+json-minify==0.3.0
 markupsafe==1.1.1         # via jinja2
 more-itertools==7.0.0     # via pytest
 numpy==1.16.4
@@ -56,4 +57,4 @@ wcwidth==0.1.7            # via pytest
 zipp==0.5.1               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools==41.1.0        # via sphinx
+# setuptools==42.0.2        # via sphinx
