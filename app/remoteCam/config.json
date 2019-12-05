@@ -1,0 +1,9 @@
+{
+    "minTime": 22, // lower boundary of time limit
+    "maxTime": 6, // upper boundary of time limit
+    "requiredPirIterations": 500, // required amount of pir trues to count as a trgger
+    "ledPin": 3,
+    "pirPin": 4,
+    "remoteCam": true, // set to true if this box is a remote camera
+    "rfidTunnel": false // set to true if this box is a rfid tunnel
+}
