@@ -26,7 +26,13 @@ class Sensor:
         self.hx.reset()
         
     def tare_weight(self) -> None:
+        old_offset = self.hx.OFFSET
         self.hx.tare()
+        new_offset = self.hx.OFFSET
+        diff = old_offset - new_offset
+
+        if (diff < -50 or diff > 50) and old_offset != 1:
+            self.hx.OFFSET = old_offset
     
     def read(self, times: int = 10) -> data.Data:
         # Read and refine weight

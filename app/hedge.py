@@ -79,7 +79,7 @@ def post(box_id, hog_id, to_post):
         weights: List = data.deserialise_many(weights_json)
 
         for weight in weights:
-            if not numpy.isnan(weight.value[0]):
+            if not numpy.isnan(weight.value[0]) or not weight.value[0] < 5:
                 client.create_weight(box_id, "hog-" + hog_id, weight.value[0], weight.timestamp)
 
         i = []
@@ -141,8 +141,7 @@ def main(last_ran):
     hour = int(datetime.strftime(datetime.now(), '%H'))  # get hour now
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    # if pir_sensor.read() == 1 and (hour >= 22  or hour <= 6): # only record during nightime and pir activated
-    if True:
+    if pir_sensor.read() == 1 and (hour >= 22  or hour <= 6): # only record during nightime and pir activated
         logger.debug("PIR READ")
         logger.debug("Started")
         rfid_tag = rfid_sensor.read()[-16:]  # record for fixed time after pir reading
@@ -199,7 +198,6 @@ def main(last_ran):
                     post(box_id, 'outside', to_post)
         except Exception as e:
             logger.exception('SFTP has failed')
-        weight_sensor = weight.Sensor()  # Will be run once an hour if PIR not triggered
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         os.chdir("/home/pi/HogPi/app")
         try:
