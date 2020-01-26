@@ -1,9 +1,12 @@
 #  =======================================
 # Import Statements
 #  =======================================
+from typing import Dict, List
 import ftp
+import numpy
 import weight
 import pir
+import data
 import logging
 import logging.handlers
 import time
@@ -22,7 +25,7 @@ from datetime import timezone
 from pathlib import Path
 import requests.exceptions
 import json
-import tzlocal # timecorrection
+import tzlocal  # timecorrection
 
 # ===================
 # Load in Config File
@@ -52,12 +55,15 @@ fileRW = output.Output()
 
 logger = logging.getLogger(__name__)
 
+weight_sensor = weight.Sensor()  # Will be run once an hour if PIR not triggered
+weight_sensor.tare_weight()  # Commented because awaiting function refactor
+
 
 def read_and_average(measurement_type):
     if measurement_type == "weight":
-        weight_sensor = weight.sensor()
-        weight_sensor.write("weight.csv", iterations=10)  # Read Weight
-        weight_sensor.avrg("weight.csv", "avrgweight.csv")  # Average Weight
+        weight_data: data.Data = weight_sensor.read()
+        weight_data: data.Data = weight_sensor.avrg(weight_data)
+        print(weight_data.value)
 
     elif measurement_type == "temp":
         thermo_sensor = thermo.sensor()
@@ -68,21 +74,16 @@ def read_and_average(measurement_type):
 
 def post(box_id, hog_id, to_post):
     print("posting")  # commissioning
-    if to_post["weight"] == True:
-        print("post weight")  # commissioning
-        weight = fileRW.read("/home/pi/avrgweight.csv", 2)
-        times = fileRW.read("/home/pi/avrgweight.csv", 1)
-        posts_success = True
-        for i in range(len(weight)):
-            time = datetime.strptime(times[i], "%Y %m %d %H %M %S")
-            if weight[i] == "0.00":
-                pass
-            else:
-                try:
-                    client.create_weight(box_id, "hog-" + hog_id, weight[i], time)
-                    fileRW.clear_data("/home/pi/avrgweight.csv")
-                except Exception as e:
-                    logger.exception("Problem posting weight from %s", box_id)
+    if to_post["weight"]:
+        weights_json: Dict = json.load(open("weight.json", "r"))
+        weights: List = data.deserialise_many(weights_json)
+
+        for weight in weights:
+            if not numpy.isnan(weight.value[0]):
+                client.create_weight(box_id, "hog-" + hog_id, weight.value[0], weight.timestamp)
+
+        i = []
+        json.dump(i, open("weight.json", "w"))
 
     if to_post["temp"] == True:
         print("post temp")  # commissioning
@@ -137,23 +138,22 @@ def cleanup():
 #  =======================================
 def main(last_ran):
     # logger.debug("Main loop heartbeat") too much info
-    hour = int(datetime.strftime(datetime.now(), '%H')) # get hour now
+    hour = int(datetime.strftime(datetime.now(), '%H'))  # get hour now
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if pir_sensor.read() == 1 and (hour >= 22  or hour <= 6): # only record during nightime and pir activated
+    # if pir_sensor.read() == 1 and (hour >= 22  or hour <= 6): # only record during nightime and pir activated
+    if True:
         logger.debug("PIR READ")
-        weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
-        weight_sensor.tare_weight()  # Commented because awaiting function refactor
         logger.debug("Started")
-        rfid_tag = rfid_sensor.read()[-16:] # record for fixed time after pir reading
-        time.sleep(10) # wait 10 s after rfid read to ensure naimal present
+        rfid_tag = rfid_sensor.read()[-16:]  # record for fixed time after pir reading
+        time.sleep(10)  # wait 10 s after rfid read to ensure naimal present
         #  =======================================
         # Weight, Temp and Video
         #  =======================================
         for i in to_post:
             try:
                 if i != "video":  # Video had to be run outside of Process
-                    process = Process(target=read_and_average(i))
+                    process = Process(target=read_and_average, args=(i,))
                     # We start the process and we block for 120 seconds.
                     print("process is: " + str(i))  # commissioning
                     process.start()
@@ -199,7 +199,7 @@ def main(last_ran):
                     post(box_id, 'outside', to_post)
         except Exception as e:
             logger.exception('SFTP has failed')
-        weight_sensor = weight.sensor()  # Will be run once an hour if PIR not triggered
+        weight_sensor = weight.Sensor()  # Will be run once an hour if PIR not triggered
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         os.chdir("/home/pi/HogPi/app")
         try:

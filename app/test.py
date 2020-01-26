@@ -4,10 +4,14 @@ import thermo
 import weight
 import rfid
 import pir
+from data import Data
+
+
+weight_sensor: weight.Sensor = weight.Sensor()
 
 
 def main_menu():
-    x = input("temp=t\nvideo=v\nweight=w\nrfid=r\npir=p\npirVerbose=pv\n")
+    x = input("temp=t\nvideo=v\nweight=w\ntareWeight=tw\nrfid=r\npir=p\npirVerbose=pv\n")
 
     if x == "t":
         temperature = thermo.sensor()
@@ -24,12 +28,13 @@ def main_menu():
         main_menu()
 
     elif x == "w":
-        weight_sensor = weight.sensor()
+        data: Data = weight_sensor.read()
+        data: Data = weight_sensor.avrg(data)
+        print(data.value)
+        main_menu()
+
+    elif x == "tw":
         weight_sensor.tare_weight()
-        weight_sensor.read()
-        print(weight_sensor.write("weight.csv", 30))
-        print(weight_sensor.avrg("weight.csv", "avrweight.csv"))  # -1 use all values
-        # weight_sensor.tare_weight(100)  # 100 = min tolerance
         main_menu()
 
     elif x == "p":
