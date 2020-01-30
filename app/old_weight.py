@@ -29,8 +29,9 @@ class sensor:
             open("/home/pi/weight.csv", "x")  # if not creates file
         check = os.path.isfile("/home/pi/tare_weight.csv")  # checks if file exists
         # removed file checking as w+ method creates
+
     def tare_weight(self):
-        hx.store_offset() # store the offset in a file
+        hx.store_offset()  # store the offset in a file
         return
 
     def get_time(self):
@@ -41,11 +42,11 @@ class sensor:
         return x
 
     def read(self):
-        val = hx.get_weight_no_tare(5) # use stored data
+        val = hx.get_weight_no_tare(5)  # use stored data
         # reslove zero values for negatives
         if val < 0:
             val = 0
-        t = self.get_time()# false removed no debugging
+        t = self.get_time()  # false removed no debugging
         tup_weight = (t, val)
         hx.power_down()
         hx.power_up()
@@ -75,14 +76,16 @@ class sensor:
         data_array = numpy.array(data).astype(numpy.float)
         # find the mean
         numpy_average = numpy.median(data_array)  # Complete avarage
-        Q1 = numpy.percentile(data_array, 25, interpolation='midpoint') # quarter at 25%
-        Q3 = numpy.percentile(data_array, 75, interpolation='midpoint')
+        Q1 = numpy.percentile(
+            data_array, 25, interpolation="midpoint"
+        )  # quarter at 25%
+        Q3 = numpy.percentile(data_array, 75, interpolation="midpoint")
         logger.debug("Median is... %s", numpy_average)
         logger.debug("Q1 value is .... %s", Q1)
         logger.debug("Q3 value is .... %s", Q3)
         j = 0
         for i in numpy.nditer(data_array):  # why data array when data is list ??
-            if i > Q1 and i < Q3 :  # Only use values in IQR
+            if i > Q1 and i < Q3:  # Only use values in IQR
                 sum_count = sum_count + i  # count the sum
                 valid_number = valid_number + 1  # count the number
                 if count == True:  # need to get index of i then lookup timestamp

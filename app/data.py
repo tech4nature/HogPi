@@ -4,7 +4,12 @@ from numpy import array, ndarray
 
 
 class Data:
-    def __init__(self, data_type: str, value: Union[float, array, List] = None, timestamp: datetime = None):
+    def __init__(
+        self,
+        data_type: str,
+        value: Union[float, array, List] = None,
+        timestamp: datetime = None,
+    ):
         self.data_type: str = data_type
         self.value: ndarray = array(value)
 
@@ -19,7 +24,7 @@ def serialise(data: Data) -> Dict:
     data_as_dict: Dict = {
         "data_type": data.data_type,
         "timestamp": datetime.strftime(data.timestamp, "%Y-%m-%d-%H-%M-%S-%z"),
-        "value": list(data.value)
+        "value": list(data.value),
     }
 
     print(str(type(data.value)).split("'")[1])
@@ -36,9 +41,13 @@ def serialise_many(data: List) -> List:
 
 
 def deserialise(data_as_dict: Dict) -> Data:
-    data_as_dict["timestamp"] = datetime.strptime(data_as_dict["timestamp"], "%Y-%m-%d-%H-%M-%S-%z")
+    data_as_dict["timestamp"] = datetime.strptime(
+        data_as_dict["timestamp"], "%Y-%m-%d-%H-%M-%S-%z"
+    )
 
-    data: Data = Data(data_as_dict["data_type"], data_as_dict["value"], data_as_dict["timestamp"])
+    data: Data = Data(
+        data_as_dict["data_type"], data_as_dict["value"], data_as_dict["timestamp"]
+    )
 
     return data
 

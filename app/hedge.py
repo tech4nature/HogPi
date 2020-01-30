@@ -30,15 +30,15 @@ import tzlocal  # timecorrection
 # ===================
 # Load in Config File
 # ===================
-config = json.load(open('/home/pi/config.json', 'r'))
+config = json.load(open("/home/pi/config.json", "r"))
 # =================
 # Variable settings
 # =================
-box_id = config['box_id']
+box_id = config["box_id"]
 cycle_time = 100
 rfid_record_time = 45
 last_ran = None
-PIZERO_IP = '10.170.1.'
+PIZERO_IP = "10.170.1."
 PIZERO_IP_MIN = 11
 PIZERO_IP_MAX = 20
 #  =======================================
@@ -79,7 +79,9 @@ def post(box_id, hog_id, to_post):
 
             for weight in weights:
                 if not numpy.isnan(weight.value[0]) or not weight.value[0] < 5:
-                    client.create_weight(box_id, "hog-" + hog_id, weight.value[0], weight.timestamp)
+                    client.create_weight(
+                        box_id, "hog-" + hog_id, weight.value[0], weight.timestamp
+                    )
 
             i = []
             json.dump(i, open("/home/pi/HogPi/app/weight.json", "w"))
@@ -111,7 +113,7 @@ def post(box_id, hog_id, to_post):
         os.chdir("/home/pi/Videos")
         files = [glob.glob(e) for e in ["*.mp4"]]
         for file in files[0]:
-            if file != '1stPASS.mp4':
+            if file != "1stPASS.mp4":
                 strtime = file.split("_")[0]
                 time = datetime.strptime(strtime, "%Y-%m-%d-%H-%M-%S-%z")
                 time = time.astimezone(timezone.utc)  # timezone correction
@@ -139,10 +141,10 @@ def cleanup():
 #  =======================================
 def main(last_ran):
     # logger.debug("Main loop heartbeat") too much info
-    hour = int(datetime.strftime(datetime.now(), '%H'))  # get hour now
+    hour = int(datetime.strftime(datetime.now(), "%H"))  # get hour now
     start_time = time.time()
     to_post = {"weight": True, "temp": True, "video": True}  # Used for partial posts
-    if  pir_sensor.read(): # only record when pir activated
+    if pir_sensor.read():  # only record when pir activated
         logger.debug("PIR READ")
         logger.debug("Started")
         rfid_tag = rfid_sensor.read()[-16:]  # record for fixed time after pir reading
@@ -163,7 +165,7 @@ def main(last_ran):
                 else:  # Runs video
                     logger.debug("Running Video")
                     try:
-                        path = '/home/pi/HogPi/app/video.py'
+                        path = "/home/pi/HogPi/app/video.py"
                         subprocess.check_output(["python3", path], timeout=120)
                     except subprocess.CalledProcessError as e:
                         logger.exception("%s cannot be posted", i)
@@ -187,28 +189,33 @@ def main(last_ran):
             time.sleep(cycle_time - time_taken)
         return None
 
-    elif last_ran != datetime.now().strftime('%H'):
+    elif last_ran != datetime.now().strftime("%H"):
         logger.info("Main loop heartbeat; last ran %s", last_ran)
-        last_ran = datetime.now().strftime('%H')
+        last_ran = datetime.now().strftime("%H")
         try:
             for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
-                response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
+                response = os.system("ping -c 1 " + PIZERO_IP + str(i))
                 if 0 == response:
                     sftp.pull_videos(PIZERO_IP + str(i))
-                    to_post = {'weight': False, 'temp': False, 'video': True}
-                    post(box_id, 'outside', to_post)
+                    to_post = {"weight": False, "temp": False, "video": True}
+                    post(box_id, "outside", to_post)
         except Exception as e:
-            logger.exception('SFTP has failed')
+            logger.exception("SFTP has failed")
         weight_sensor.tare_weight()  # Commented because awaiting function refactor
         os.chdir("/home/pi/HogPi/app")
         try:
             files = [glob.glob(e) for e in ["*.log"]]
             for file in files[0]:
-                filename = box_id + datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-                ftp.ftp_post(filename, file, 'ftpk@robotacademy.co.uk',
-                             'Angelgabe23', '91.208.99.4')
+                filename = box_id + datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+                ftp.ftp_post(
+                    filename,
+                    file,
+                    "ftpk@robotacademy.co.uk",
+                    "Angelgabe23",
+                    "91.208.99.4",
+                )
         except Exception as e:
-            logger.exception('FTP has failed')
+            logger.exception("FTP has failed")
         return last_ran
 
 

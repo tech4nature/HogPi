@@ -13,38 +13,38 @@ def main_menu():
         main_menu()
 
     elif x == "p":
-        '''
+        """
         Runs PIR until triggered(1) and then
         runs pin reverts to not triggered(0)
-        '''
+        """
         pir_sensor = pir.sensor(4)
         while True:
             result = pir_sensor.read()
             if result == 1:
-                print('PIR TRIGGERED')
+                print("PIR TRIGGERED")
                 while True:
                     result = pir_sensor.read()
                     if result == 0:
-                        print('PIR NOT TRIGGERED')
+                        print("PIR NOT TRIGGERED")
                         break
 
         main_menu()
 
     elif x == "pv":
-        '''
+        """
         Prints result of a pir read
-        '''
+        """
         pir_sensor = pir.sensor(4)
         while True:
             print(pir_sensor.read())
 
         main_menu()
 
-    elif x == 'l':
+    elif x == "l":
         irled = led.sensor(3)
-        print('LED ON')
+        print("LED ON")
         irled.on()
-        print('LED OFF')
+        print("LED OFF")
         irled.off()
 
 

@@ -9,7 +9,7 @@ import data
 # TODO: Config
 config: Dict = {
     "min_percentile": 75,
-    "spike_cut": 5  # A percentage of values that will be cut off to get rid of spikes
+    "spike_cut": 5,  # A percentage of values that will be cut off to get rid of spikes
 }
 
 
@@ -24,7 +24,7 @@ class Sensor:
         self.hx.set_reading_format("LSB", "MSB")
         self.hx.set_reference_unit(398)  # TODO: Make Calibration Script
         self.hx.reset()
-        
+
     def tare_weight(self) -> None:
         old_offset = self.hx.OFFSET
         self.hx.tare()
@@ -33,7 +33,7 @@ class Sensor:
 
         if (diff < -50 or diff > 50) and old_offset != 1:
             self.hx.OFFSET = old_offset
-    
+
     def read(self, times: int = 10) -> data.Data:
         # Read and refine weight
 
@@ -45,7 +45,7 @@ class Sensor:
             if weight < 0:
                 weight: float = 0
 
-            weight: float = float('%.2f' % weight)
+            weight: float = float("%.2f" % weight)
             weights.append(weight)
 
         logger.debug(weights)
@@ -61,14 +61,18 @@ class Sensor:
         weights: ndarray = sort(weights)
 
         print(weights)
-        weights: ndarray = weights[:int((len(weights)/100)*(100-config["spike_cut"]))]
+        weights: ndarray = weights[
+            : int((len(weights) / 100) * (100 - config["spike_cut"]))
+        ]
         print(weights)
         max_value: float = weights[-1]
         min_cut: float = (max_value / 100) * config["min_percentile"]
         weights: ndarray = weights[weights > min_cut]
         print(weights)
 
-        final_weight = data.Data(weight.data_type, [float('%.2f' % weights.mean())], weight.timestamp)
+        final_weight = data.Data(
+            weight.data_type, [float("%.2f" % weights.mean())], weight.timestamp
+        )
 
         data_as_dict: Dict = data.serialise(final_weight)
         weights_dict: List = json.load(open("/home/pi/HogPi/app/weight.json", "r"))
@@ -76,6 +80,3 @@ class Sensor:
         json.dump(weights_dict, open("/home/pi/HogPi/app/weight.json", "w"))
 
         return final_weight
-
-
-

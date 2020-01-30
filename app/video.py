@@ -130,7 +130,9 @@ if __name__ == "__main__":
     ffmpeg2.wait()
 
     # ffmpeg 3rd pass to add BITC and flip video !
-    output_file3 = output_folder + filename + "_int.mp4"  # added _int to demark internal camera
+    output_file3 = (
+        output_folder + filename + "_int.mp4"
+    )  # added _int to demark internal camera
     filter = (
         "drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text='%{pts\:localtime\:"
         + str(offset)

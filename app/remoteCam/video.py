@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-#    irled = led.sensor(3)  # Instantiate led class and assign the pin the BCM3
+    #    irled = led.sensor(3)  # Instantiate led class and assign the pin the BCM3
 
     working_folder = "/home/pi/IntermediateVideos/"  # output folder
     final_folder = "/home/pi/Videos/"
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     rectime = "10"  # record time of 10s
 
     # ffmpeg 1st Pass record
- #   irled.on()  # Turn led on
+    #   irled.on()  # Turn led on
 
     # removed all audio from this files
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         ]
     )
     ffmpeg1.wait()
-  #  irled.off()  # Turn led off
+    #  irled.off()  # Turn led off
 
     # ffprobe to extract recording time and date and turn into offset seconds
     command = [
@@ -82,7 +82,9 @@ if __name__ == "__main__":
     filename = d.replace(" ", "-")
 
     # ffmpeg 3rd pass to add BITC and flip video !
-    output_file3 = working_folder + filename + "_ext.mp4"  # added _ext to demark external camera
+    output_file3 = (
+        working_folder + filename + "_ext.mp4"
+    )  # added _ext to demark external camera
     filter = (
         "drawtext=fontfile=/home/pi/.fonts/NovaRound.ttf:fontsize=48:text='%{pts\:localtime\:"
         + str(offset)
@@ -110,10 +112,10 @@ if __name__ == "__main__":
         ]
     )  # tried '-c:v', 'h264_omx', '-profile', '100'
     ffmpeg3.wait()
-    os.rename(output_file3, final_folder + output_file3.split('/')[-1])
+    os.rename(output_file3, final_folder + output_file3.split("/")[-1])
     # remove 1stPASS.mp4 and 2ndPASS.mp4 if ffmpeg3 is sucessful
-    #if ffmpeg3.returncode == 0:
-        # os.remove(of1)
-        # os.remove("/home/pi/jackTest/audio")
+    # if ffmpeg3.returncode == 0:
+    # os.remove(of1)
+    # os.remove("/home/pi/jackTest/audio")
 
     sys.exit()
