@@ -71,9 +71,9 @@ class Sensor:
         final_weight = data.Data(weight.data_type, [float('%.2f' % weights.mean())], weight.timestamp)
 
         data_as_dict: Dict = data.serialise(final_weight)
-        weights_dict: List = json.load(open("weight.json", "r"))
+        weights_dict: List = json.load(open("/home/pi/HogPi/app/weight.json", "r"))
         weights_dict.append(data_as_dict)
-        json.dump(weights_dict, open("weight.json", "w"))
+        json.dump(weights_dict, open("/home/pi/HogPi/app/weight.json", "w"))
 
         return final_weight
 

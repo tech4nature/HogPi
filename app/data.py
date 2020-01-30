@@ -4,13 +4,14 @@ from numpy import array, ndarray
 
 
 class Data:
-    def __init__(self, data_type: str, value: Union[float, array, List] = None,
-                 timestamp: datetime = datetime.now(timezone.utc)):
+    def __init__(self, data_type: str, value: Union[float, array, List] = None, timestamp: datetime = None):
         self.data_type: str = data_type
-        if str(type(value)).split("'")[1] == 'float':
-            self.value: int = value
         self.value: ndarray = array(value)
-        self.timestamp: datetime = timestamp
+
+        if timestamp is None:
+            self.timestamp = datetime.now(timezone.utc)
+        else:
+            self.timestamp = timestamp
 
 
 def serialise(data: Data) -> Dict:
