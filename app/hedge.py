@@ -41,8 +41,6 @@ last_ran = None
 PIZERO_IP = '10.170.1.'
 PIZERO_IP_MIN = 11
 PIZERO_IP_MAX = 20
-PIZERO_FTP_USERNAME = 'pi'
-PIZERO_FTP_PASSWORD = 'hog1hog1'
 #  =======================================
 # Object settings
 #  =======================================
@@ -196,7 +194,7 @@ def main(last_ran):
             for i in range(PIZERO_IP_MIN, PIZERO_IP_MAX + 1):
                 response = os.system('ping -c 1 ' + PIZERO_IP + str(i))
                 if 0 == response:
-                    sftp.pull_videos(PIZERO_IP + str(i), PIZERO_FTP_USERNAME, PIZERO_FTP_PASSWORD)
+                    sftp.pull_videos(PIZERO_IP + str(i))
                     to_post = {'weight': False, 'temp': False, 'video': True}
                     post(box_id, 'outside', to_post)
         except Exception as e:
